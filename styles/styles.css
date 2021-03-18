@@ -1,0 +1,48 @@
+html {
+	font-size: 10px;
+	font-family: "Open Sans", sans-serif;
+	background-color: #EEEEEE;
+}
+
+h1 {
+	margin: 0;
+	padding: 20px 0;
+	font-size: 60px;
+	text-align: center;
+	color: #808080;
+	text-shadow: 3px 3px 3px black;
+}
+
+p, li {
+	font-size: 16px;
+	line-height: 2;
+	letter-spacing: 1px;
+	color: #808080
+}
+
+body {
+	width: 600px;
+	margin: 0 auto;
+	background-color: #333333;
+	padding: 0 20px 20px 20px;
+	border: 5px solid grey;
+}
+
+#chrome-icon {
+	width: 200px;
+	height: 200px;
+	display: block;
+	margin: 0 auto;
+}
+
+#favicon-link {
+	text-decoration: none;
+}
+
+a[href]:hover {
+	color: red;
+}
+
+a[href] {
+	color: #6699CC;
+}
