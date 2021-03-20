@@ -21,11 +21,16 @@
 	width:25%;
 }
 
-.footer {
-    background-color:grey;
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: grey;
+    color: white;
+    text-align: center;
     padding:20px 20px;
-    color:white;
-}
+  }
 /*.navbar .navbar-nav{
     display: inline-block;
     float: none;
