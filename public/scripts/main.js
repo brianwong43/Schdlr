@@ -15,9 +15,9 @@ function myFunction() {
         return;
         //confirmPassword.setCustomValidity('Passwords Don\'t Match');
     } 
-    else if (password.length == 0 || confirmPassword.length ==0){
-        console.log("ERROR EMPTY PASSWORD");
-        alert("Enter a password!");
+    else if (password.length < 6){
+        console.log("ERROR PASSWORD TOO SHORT");
+        alert("Too short! Password must be 6 characters or longer.");
         return;
     }
     else {
