@@ -1,16 +1,27 @@
 function myFunction() {
-    var email = document.getElementById('useremail').value;
-    var username = document.getElementById('username').value;
-    var password = document.getElementById('password1');
-    var confirmPassword = document.getElementById('password2');
+    let email = document.getElementById('useremail').value;
+    let username = document.getElementById('username').value;
+    let password = document.getElementById('password1').value;
+    let confirmPassword = document.getElementById('password2').value;
 
     console.log(document.getElementById("useremail").value);
+    console.log(document.getElementById('username').value);
     console.log(document.getElementById("password1").value);
-
-    if(password.value != confirmPassword.value) {
-        console.log("ERROR");
+    console.log(document.getElementById('password2').value);
+    console.log("test");
+    if(password != confirmPassword){
+        console.log("ERROR PASSWORD DOES NOT MATCH");
+        alert("Passwords do not match, please try again.");
+        return;
         //confirmPassword.setCustomValidity('Passwords Don\'t Match');
-    } else {
+    } 
+    else if (password.length == 0 || confirmPassword.length ==0){
+        console.log("ERROR EMPTY PASSWORD");
+        alert("Enter a password!");
+        return;
+    }
+    else {
+        alert("Success!")
         //confirmPassword.setCustomValidity('');
     }
 
