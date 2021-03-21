@@ -7,7 +7,7 @@
     <link href="styles/styles.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="scripts/main.js" defer></script>
+    
     <title>Scheduler</title>
   </head>
   <body>
@@ -21,39 +21,8 @@
       </div>
     </nav>
 
-    <!-- Username and Password -->
-    <div class="panel panel-primary">
-        <div class="panel-body">Sign-up</div>
-        <div class="panel-footer">
-                <form>
-                    <div class="form-group">
-                      <label for="useremail">Email address</label>
-                      <input type="email" class="form-control" id="useremail" aria-describedby="emailHelp" placeholder="Enter email">
-                      <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-                    </div>
-                    <div class="form-group">
-                      <label for="username">Name</label>
-                      <input type="text" class="form-control" id="username" placeholder="Enter your name">
-                      <small id="smallname" class="form-text text-muted">Visible to others</small>
-                    </div>
-                    <div class="form-group">
-                      <label for="password1">Password</label>
-                      <input type="password" class="form-control" id="password1" placeholder="Password">
-                    </div>
-                    <div class="form-group">
-                      <label for="password2">Confirm Password</label>
-                      <input type="password" class="form-control" id="password2" placeholder="Password">
-                    </div>
-                    <!--div class="form-check">
-                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                      <label class="form-check-label" for="exampleCheck1">Remember me</label>
-                    </div-->
-                    <button type="submit" class="btn btn-primary" id="submitSignUp">Submit</button>
-                </form>
-                
-            </div>
-    </div>
     
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
@@ -61,6 +30,8 @@
     <!-- TODO: Add SDKs for Firebase products that you want to use
         https://firebase.google.com/docs/web/setup#available-libraries -->
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
 
     <script>
       // Your web app's Firebase configuration
@@ -78,7 +49,39 @@
       firebase.initializeApp(firebaseConfig);
       firebase.analytics();
     </script>
-
+    <script src="scripts/main.js"></script>
+<!-- Username and Password -->
+    <div class="panel panel-primary">
+    <div class="panel-body">Sign-up</div>
+    <div class="panel-footer">
+            <form>
+                <div class="form-group">
+                  <label for="useremail">Email address</label>
+                  <input type="email" class="form-control" id="useremail" aria-describedby="emailHelp" placeholder="Enter email">
+                  <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                </div>
+                <div class="form-group">
+                  <label for="username">Name</label>
+                  <input type="text" class="form-control" id="username" placeholder="Enter your name">
+                  <small id="smallname" class="form-text text-muted">Visible to others</small>
+                </div>
+                <div class="form-group">
+                  <label for="password1">Password</label>
+                  <input type="password" class="form-control" id="password1" placeholder="Password">
+                </div>
+                <div class="form-group">
+                  <label for="password2">Confirm Password</label>
+                  <input type="password" class="form-control" id="password2" placeholder="Password">
+                </div>
+                <!--<div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                  <label class="form-check-label" for="exampleCheck1">Remember me</label>
+                </div>-->
+                <button onclick="myFunction()" class="btn btn-primary" id="submitSignUp">Submit</button>
+            </form>
+            
+        </div>
+    </div>
     <footer>
       <p>©Copyright 2050 by nobody. All rights reversed.</p>
     </footer>
