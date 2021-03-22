@@ -23,9 +23,8 @@ function signup() {
     firebase.auth().createUserWithEmailAndPassword(email, password)
     .then((userCredential) => {
         // Signed in 
-        var user = userCredential.user;
-        alert("Account made");
-        window.location.replace("home.html");
+        var user = userCredential.user;   
+        window.location.replace("home.html") 
     })
     .catch((error) => {
         var errorCode = error.code;
@@ -33,6 +32,20 @@ function signup() {
         alert("YOU'RE A FAILURE");
         // ..
     });
+
+    var userUpdate = firebase.auth().currentUser;
+    userUpdate.updateProfile({
+      displayName: username
+    }).then(function() {
+      console.log(username);
+    }).catch(function(error) {
+      // An error happened.
+    });
+}
+
+function printDisplayName(){
+  var userUpdate = firebase.auth().currentUser;
+  alert(userUpdate.displayName);
 }
 
 function login() {
