@@ -22,6 +22,33 @@
       </div>
     </nav>
 
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      var firebaseConfig = {
+        apiKey: "AIzaSyCtk-yPYtcMoxMn_7PasKZe3VtxDx4GckQ",
+        authDomain: "schdlr-b3435.firebaseapp.com",
+        projectId: "schdlr-b3435",
+        storageBucket: "schdlr-b3435.appspot.com",
+        messagingSenderId: "787536569268",
+        appId: "1:787536569268:web:1f2966c2622f1a347a48e1",
+        measurementId: "G-95FKY6HTYT"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+      firebase.analytics();
+    </script>
+
     <!-- Username and Password -->
     <div class="panel panel-primary">
         <div class="panel-body">Login</div>
@@ -29,21 +56,19 @@
 
           <form>
               <div class="form-group">
-              <label for="email">Email address</label>
-              <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
-              <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+                <label for="loginuseremail">Email address</label>
+                <input type="email" class="form-control" id="loginuseremail" aria-describedby="emailHelp" placeholder="Enter email">
+                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
               </div>
               <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" class="form-control" id="password" placeholder="Password">
+                <label for="loginpassword">Password</label>
+                <input type="password" class="form-control" id="loginpassword" placeholder="Password">
               </div>
               <div class="form-check">
-              <input type="checkbox" class="form-check-input" id="rememberme">
-              <label class="form-check-label" for="rememberme">Remember me</label>
+                <input type="checkbox" class="form-check-input" id="loginrememberme">
+                <label class="form-check-label" for="loginrememberme">Remember me</label>
               </div>
-              <button type="submit" class="btn btn-primary">
-                <a href="home.html" style="color:white">Submit</a>
-              </button>
+              <button onclick="login()" class="btn btn-primary" id="submitLogin">Submit</button>
           </form>
         </div>
     </div>
