@@ -26,7 +26,6 @@ function signup() {
         var user = userCredential.user;
         alert("Account made");
         window.location.replace("home.html");
-        // ...
     })
     .catch((error) => {
         var errorCode = error.code;
@@ -37,16 +36,17 @@ function signup() {
 }
 
 function login() {
-    let email = document.getElementById('loginuseremail').value;
-    let password = document.getElementById('loginpassword').value;
+    let loginemail = document.getElementById('loginuseremail').value;
+    let loginpassword = document.getElementById('loginpassword').value;
+    console.log(loginemail);
+    console.log(loginpassword);
     // [START auth_signin_password]
-    firebase.auth().signInWithEmailAndPassword(email, password)
+    firebase.auth().signInWithEmailAndPassword(loginemail, loginpassword)
       .then((userCredential) => {
         // Signed in
-        var user = userCredential.user;
         alert("Success!");
+        var user = userCredential.user;
         window.location.replace("home.html");
-        // ...
       })
       .catch((error) => {
         var errorCode = error.code;
@@ -54,10 +54,14 @@ function login() {
         alert("Wrong username or password.");
       });
     // [END auth_signin_password]
-  }
-//MAKE FUNC
+}
+
+function signOut(){
   firebase.auth().signOut().then(() => {
     // Sign-out successful.
+    alert("Signed Out");
   }).catch((error) => {
     // An error happened.
+    alert("Failed to Sign Out");
   });
+}

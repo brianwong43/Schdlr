@@ -6,13 +6,40 @@
     <meta name="description" content="Website to schedule stuff.">
     <link href="styles/styles.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="scripts/main.js" defer></script>
-    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">  
     <title>Scheduler</title>
-    <!--script src="scripts/main.js" defer></script-->
   </head>
   <body>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+        https://firebase.google.com/docs/web/setup#available-libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      var firebaseConfig = {
+        apiKey: "AIzaSyCtk-yPYtcMoxMn_7PasKZe3VtxDx4GckQ",
+        authDomain: "schdlr-b3435.firebaseapp.com",
+        projectId: "schdlr-b3435",
+        storageBucket: "schdlr-b3435.appspot.com",
+        messagingSenderId: "787536569268",
+        appId: "1:787536569268:web:1f2966c2622f1a347a48e1",
+        measurementId: "G-95FKY6HTYT"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      var db = firebase.firestore();
+      firebase.analytics();
+    </script>
+    <script src="scripts/main.js"></script>
+
 
     <!-- Navbar -->
     <nav class="navbar navbar-inverse">
@@ -23,6 +50,9 @@
         <ul class="nav navbar-nav">
           <li><a href="calendar.html">Calendar</a></li>
           <li><a href="profile.html">Profile</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="index.html" onclick="signOut()"><span class="glyphicon glyphicon-log-out"></span> Sign Out</a></li>
         </ul>
       </div>
     </nav>
@@ -37,7 +67,7 @@
     <hr>
 
     <!-- List of events -->
-
+    
     
     <footer>
       <p>©Copyright 2050 by nobody. All rights reversed.</p>
