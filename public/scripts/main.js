@@ -1,3 +1,5 @@
+var db = firebase.firestore();
+
 function signup() {
     let email = document.getElementById('useremail').value;
     let username = document.getElementById('username').value;
@@ -24,10 +26,12 @@ function signup() {
     .then((userCredential) => {
         // Signed in 
         var user = userCredential.user;   
-        
-        console.log("made it here");
-        console.log("Username: "+username);
-        updateProfile(username);
+        console.log("Right before createuser");
+        createUser(username);
+          /*.then(function updateProfile(username){
+            console.log("made it here");
+          });*/
+        //updateProfile(username);
         
     })
     .catch((error) => {
@@ -38,8 +42,26 @@ function signup() {
     });
 }
 
-function updateProfile(passedUsername){
-    let username = passedUsername;
+function createUser(username){
+      console.log("Beginning of createUser");
+      var user = firebase.auth().currentUser;
+      console.log("Made user: " + user.uid);
+
+      // Set firestore db with user
+      db.collection("users").doc(username)
+      .set({
+        uid: user.uid,
+        friends: []
+      });
+      /*.withConverter(userConverter)
+      .set(new User(user.uid, "joe"));*/
+      console.log("after it");
+      //resolve('resolved');
+  //});
+}
+
+function updateProfile(username){
+  console.log("ITS ASYNC");
     console.log("current: "+firebase.auth().currentUser.displayName);
     firebase.auth().currentUser.updateProfile({
         displayName: username
