@@ -24,7 +24,11 @@ function signup() {
     .then((userCredential) => {
         // Signed in 
         var user = userCredential.user;   
-        window.location.replace("home.html") 
+        
+        console.log("made it here");
+        console.log("Username: "+username);
+        updateProfile(username);
+        
     })
     .catch((error) => {
         var errorCode = error.code;
@@ -32,15 +36,21 @@ function signup() {
         alert("YOU'RE A FAILURE");
         // ..
     });
+}
 
-    var userUpdate = firebase.auth().currentUser;
-    userUpdate.updateProfile({
-      displayName: username
+function updateProfile(passedUsername){
+    let username = passedUsername;
+    console.log("current: "+firebase.auth().currentUser.displayName);
+    firebase.auth().currentUser.updateProfile({
+        displayName: username
     }).then(function() {
-      console.log(username);
+        console.log(firebase.auth().currentUser.displayName);
+        console.log('User Profile Updated Successfully');
+        window.location.replace("home.html");
     }).catch(function(error) {
-      // An error happened.
+    // An error happened.
     });
+    
 }
 
 function printDisplayName(){
