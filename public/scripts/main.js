@@ -1,3 +1,17 @@
+firebase.auth().onAuthStateChanged((user) => {
+  if(user) {
+    db.collection('users').doc(user.uid).get().then((doc) => {
+      if(doc.exists){
+        console.log("Document data:", doc.data());
+      } else {
+        console.log("No such document");
+      }
+    });
+  } else {
+    alert("not signed in");
+  }
+});
+
 function signup() {
     let email = document.getElementById('useremail').value;
     let username = document.getElementById('username').value;
@@ -67,10 +81,10 @@ function updateProfile(username){
     
 }
 
-function printDisplayName(){
+/*function printDisplayName(){
   var userUpdate = firebase.auth().currentUser;
   alert(userUpdate.displayName);
-}
+}*/
 
 function login() {
     let loginemail = document.getElementById('loginuseremail').value;
@@ -103,19 +117,46 @@ function signOut(){
   });
 }
 
-function displayProfile(){
-  var user = firebase.auth().currentUser;
-  const displayName = document.querySelector('.display-name');
-  const displayFriends = document.querySelector('.friends');
-  //const setupUI = (user) => {
-    if(user) {
-      const html = '<div>Logged in as ${user.displayName}</div>';
-      displayName.innerHTML = html;
-
-      const html2 = '<div>Logged in as ${user.displayName}</div>';
-      displayFriends.innerHTML = html2;
-    } else {
-      console.log("not logged in");
-    }
-  //}
+function printDisplayName(){
+  //var user = firebase.auth().currentUser;
+  if(user) {
+    db.collection('users').doc(user.uid).get().then((doc) => {
+      if(doc.exists){
+        //console.log("Document data:", doc.data());
+        alert("Your name is: " + doc.data().displayName);
+      } else {
+        console.log("No such document");
+      }
+    });
+  } else {
+    alert("not signed in");
+  }
 }
+
+/*var user = firebase.auth().currentUser;
+auth.onAuthStateChanged(user => {
+    if(user) {
+      db.collection('users').inSnapshot(snapshot => {
+        setupUI(user);
+      });
+    } else {
+      setupUI();
+    }
+});
+
+//function displayProfile(){
+const displayTheName = document.querySelector('.display-name');
+//const displayFriends = document.querySelector('.friends');
+
+const setupUI = (user) => {
+  if(user) {
+    const html = '<div>Logged in as ${user.displayName}</div>';
+    displayTheName.innerHTML = html;
+
+    //const html2 = '<div>Logged in as ${user.displayName}</div>';
+    //displayFriends.innerHTML = html2;
+  } else {
+    console.log("not logged in");
+  }
+}*/
+//}
