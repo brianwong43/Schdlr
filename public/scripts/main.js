@@ -54,7 +54,6 @@ function createUser(username){
 }
 
 function updateProfile(username){
-  console.log("ITS ASYNC");
     console.log("current: "+firebase.auth().currentUser.displayName);
     firebase.auth().currentUser.updateProfile({
         displayName: username
@@ -102,4 +101,21 @@ function signOut(){
     // An error happened.
     alert("Failed to Sign Out");
   });
+}
+
+function displayProfile(){
+  var user = firebase.auth().currentUser;
+  const displayName = document.querySelector('.display-name');
+  const displayFriends = document.querySelector('.friends');
+  //const setupUI = (user) => {
+    if(user) {
+      const html = '<div>Logged in as ${user.displayName}</div>';
+      displayName.innerHTML = html;
+
+      const html2 = '<div>Logged in as ${user.displayName}</div>';
+      displayFriends.innerHTML = html2;
+    } else {
+      console.log("not logged in");
+    }
+  //}
 }
