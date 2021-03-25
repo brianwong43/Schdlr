@@ -43,7 +43,7 @@ function createUser(username){
       
       db.collection("users").doc(username)
       .withConverter(userConverter)
-      .set(new User(user.uid, "joe"))
+      .set(new User(user.uid, []))
       .then(() => {
         console.log("Document successfully written!");
         updateProfile(username);
