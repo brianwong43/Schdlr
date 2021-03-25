@@ -1,5 +1,3 @@
-var db = firebase.firestore();
-
 function signup() {
     let email = document.getElementById('useremail').value;
     let username = document.getElementById('username').value;
@@ -10,7 +8,6 @@ function signup() {
     console.log(document.getElementById('username').value);
     console.log(document.getElementById("password1").value);
     console.log(document.getElementById('password2').value);
-    console.log("test");
     if(password != confirmPassword){
         console.log("ERROR PASSWORD DOES NOT MATCH");
         alert("Passwords do not match, please try again.");
@@ -28,11 +25,6 @@ function signup() {
         var user = userCredential.user;   
         console.log("Right before createuser");
         createUser(username);
-          /*.then(function updateProfile(username){
-            console.log("made it here");
-          });*/
-        //updateProfile(username);
-        
     })
     .catch((error) => {
         var errorCode = error.code;
@@ -48,16 +40,17 @@ function createUser(username){
       console.log("Made user: " + user.uid);
 
       // Set firestore db with user
+      
       db.collection("users").doc(username)
-      .set({
-        uid: user.uid,
-        friends: []
-      });
-      /*.withConverter(userConverter)
-      .set(new User(user.uid, "joe"));*/
-      console.log("after it");
-      //resolve('resolved');
-  //});
+      .withConverter(userConverter)
+      .set(new User(user.uid, "joe"))
+      .then(() => {
+        console.log("Document successfully written!");
+        updateProfile(username);
+        })
+        .catch((error) => {
+        console.error("Error writing document: ", error);
+    });
 }
 
 function updateProfile(username){

@@ -1,4 +1,3 @@
-
 class User {
     constructor(uid, friends) {
         this.uid = uid;
