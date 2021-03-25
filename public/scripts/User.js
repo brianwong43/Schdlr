@@ -1,22 +1,22 @@
 class User {
-    constructor(uid, friends) {
-        this.uid = uid;
+    constructor(displayName, friends) {
+        this.displayName = displayName;
         this.friends = friends;
     }
     toString() {
-        return this.uid + ', ' + this.friends;
+        return this.displayName + ', ' + this.friends;
     }
 }
 
 var userConverter = {
     toFirestore: function(user) {
         return {
-            uid: user.uid,
+            displayName: user.displayName,
             friends: user.friends
             };
     },
     fromFirestore: function(snapshot, options){
         const data = snapshot.data(options);
-        return new User(data.uid, data.friends);
+        return new User(data.displayName, data.friends);
     }
 };

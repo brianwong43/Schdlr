@@ -41,9 +41,9 @@ function createUser(username){
 
       // Set firestore db with user
       
-      db.collection("users").doc(username)
+      db.collection("users").doc(user.uid)
       .withConverter(userConverter)
-      .set(new User(user.uid, []))
+      .set(new User(username, []))
       .then(() => {
         console.log("Document successfully written!");
         updateProfile(username);
