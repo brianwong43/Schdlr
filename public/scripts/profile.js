@@ -14,6 +14,7 @@ firebase.auth().onAuthStateChanged((user) => {
             // Loop through list to add friend list element
             for(var i=0; i<friendList.length; i++){
               var friend = document.createElement("LI");
+              friend.setAttribute("class", "list-group-item");
               friend.innerHTML = friendList[i];
               document.getElementById("profileFriends").appendChild(friend);
             }
