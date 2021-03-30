@@ -61,17 +61,34 @@
     <script src="scripts/profile.js"></script>
 
     <!-- Content -->
-    <div class="content" id="accountDetails">
-      <h1>Account Details</h1>
-        <!--Profile Picture-->
-        <!--Name-->     
-        <p>Name: <span id="profileName">N/A</span></p>
-        <!--Friend List-->
-        <p>Friends:</p>
-        <ul class="list-group" id="profileFriends"></ul>
+    <div class="container-lg">
+      <div class="row" id="account-row">
+        <div class="col-sm-8" id="account-row">
+        <!-- Left side -->
+        <div class="panel panel-primary" id="account-panels">
+          <div class="panel-body"><h1>Account Details</h1></div>
+          <div class="panel-footer">
+            <!--Profile Picture-->
+            PICTURE
+            <!--Name-->     
+            <p><strong>Name: </strong><span id="profileName">N/A</span></p>
+            <!--Friend List-->
+          </div>
+        </div>
+      </div>
 
-    </div>
-   
+      <div class="col-sm-4" id="account-row">
+        <!-- Right side -->
+        <div class="panel panel-primary" id="account-panels">
+          <div class="panel-body"><h1>Friends</h1></div>
+          <div class="panel-footer">
+            <p>Friends:</p>
+            <ul class="list-group" id="profileFriends"></ul>
+          </div>
+        </div>
+      </div>
+
+    </div> 
     <footer>
       <p>©Copyright 2050 by nobody. All rights reversed.</p>
     </footer>

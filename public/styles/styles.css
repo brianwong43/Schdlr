@@ -5,7 +5,7 @@
     background-size: cover;
 }
 
-.col-sm-4 {
+#description {
 	font-family:'Times New Roman', Times, serif;
 	font-size:20px;
   }
@@ -16,11 +16,11 @@
 }
 
 .content {
-    margin:20px;
+    margin:30px;
 }
 
-.panel {
-	margin-top: 50px;
+#login {
+	margin-top: 5%;
 	margin-left: 37.5%;
 	width:25%;
 }
@@ -35,16 +35,18 @@ footer {
     text-align: center;
     padding:20px 20px;
   }
-/*.navbar .navbar-nav{
-    display: inline-block;
-    float: none;
-}
-.navbar .navbar-collapse {
-    text-align: center;
-}
-.navbar .navbar-header{
-    text-align: center;
-}
-.navbar .navbar-header a {
-    float: none;
-}*/
+  
+  .container-lg {
+      margin-top: 2%;
+      margin-left: 2%;
+      margin-right: 2%;
+      height: 80vh;
+  }
+
+  #account-panels {
+      height: 100%;
+  }
+
+  #account-row {
+      height: 100%;
+  }
