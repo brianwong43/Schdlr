@@ -1,6 +1,7 @@
 firebase.auth().onAuthStateChanged((user) => {
     if(user) {
         console.log("User logged in Profile");
+        console.log(window.location.pathname);
         // Print Display Name
         document.getElementById("profileName").innerHTML = user.displayName;
 

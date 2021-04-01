@@ -36,17 +36,23 @@ footer {
     padding:20px 20px;
   }
   
-  .container-lg {
-      margin-top: 2%;
-      margin-left: 2%;
-      margin-right: 2%;
-      height: 80vh;
-  }
+.container-lg {
+    margin-top: 2%;
+    margin-left: 2%;
+    margin-right: 2%;
+    height: 80vh;
+}
 
-  #account-panels {
-      height: 100%;
-  }
+#profileFriends {
+    max-height: 200px;
+    max-width: 300px;
+    overflow: scroll;
+}
 
-  #account-row {
-      height: 100%;
-  }
+#account-panels {
+    height: 100%;
+}
+
+#account-row {
+    height: 100%;
+}
