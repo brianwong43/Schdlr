@@ -1,27 +1,54 @@
-/*firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-  .then(function() {
-    // Existing and future Auth states are now persisted in the current
-    // session only. Closing the window would clear any existing state even
-    // if a user forgets to sign out.
-    // ...
-    // New sign-in will be persisted with session persistence.
-    return firebase.auth().signInWithEmailAndPassword(email, password);
-  })
-  .catch(function(error) {
-    // Handle Errors here.
-    var errorCode = error.code;
-    var errorMessage = error.message;
-  });*/
+
 firebase.auth().onAuthStateChanged((user) => {
     if(user) {
-        console.log("User logged in");
+
+      console.log("User logged in...");
+      console.log("PATH: " + window.location.pathname);
+
+      /* PROFILE.HTML */
+      if(window.location.pathname == "/profile.html") {
+        // NAME
+        document.getElementById("profileName").innerHTML = user.displayName;
+
+        // FRIENDS
         db.collection('users').doc(user.uid).get().then((doc) => {
-        if(doc.exists){
-          console.log("Document data:", doc.data());
-        } else {
-          console.log("No such document");
-        }
-      });
+          if(doc.exists){
+            console.log("Document data:", doc.data());
+            var userObject = doc.data();
+            var friendList = userObject.friends;
+
+            for(var i=0; i<friendList.length; i++){
+              var friend = document.createElement("LI");
+              friend.setAttribute("class", "list-group-item");
+              friend.innerHTML = friendList[i];
+              document.getElementById("profileFriends").appendChild(friend);
+            }
+
+            // PHOTO
+            if(user.photoUrl === "") {
+              document.getElementById("profilePicture").src = user.photoUrl;
+            }
+          } else {
+            console.log("No such document");
+          }
+        });
+      }
+
+      /* EDITPROFILE.HTML */
+      else if(window.location.pathname == "/profileEdit.html") {
+        console.log("Inside of edit profile");
+        document.getElementById("profileName").value = user.displayName;
+      }
+
+      else {
+        db.collection('users').doc(user.uid).get().then((doc) => {
+          if(doc.exists){
+            console.log("Document data:", doc.data());
+          } else {
+            console.log("No such document");
+          }
+        });
+      } 
     } else {
       console.log("User logged out");
     }
@@ -67,17 +94,17 @@ function createUser(username){
       
       db.collection("users").doc(user.uid)
       .withConverter(userConverter)
-      .set(new User(username, []))
+      .set(new User(username, [], ""))
       .then(() => {
         console.log("Document successfully written!");
-        updateProfile(username);
+        addDisplayName(username);
         })
         .catch((error) => {
         console.error("Error writing document: ", error);
     });
 }
 
-function updateProfile(username){
+function addDisplayName(username){
     console.log("current: "+firebase.auth().currentUser.displayName);
     firebase.auth().currentUser.updateProfile({
         displayName: username
@@ -91,10 +118,24 @@ function updateProfile(username){
     
 }
 
-/*function printDisplayName(){
-  var userUpdate = firebase.auth().currentUser;
-  alert(userUpdate.displayName);
-}*/
+function updateProfile() {
+  let profilePicture = document.getElementById('editProfilePicture').value;
+  console.log("Profile Value: " + profilePicture);
+
+  let profileName = document.getElementById('profileName').value;
+  console.log("current: "+firebase.auth().currentUser.displayName);
+  firebase.auth().currentUser.updateProfile({
+      photoUrl: profilePicture,
+      displayName: profileName
+  }).then(function() {
+      console.log(firebase.auth().currentUser.displayName);
+      console.log('User Profile Updated Successfully');
+      window.location.replace("profile.html");
+  }).catch(function(error) {
+  // An error happened.
+    console.log("Problem updating Profile");
+  });
+}
 
 function login() {
     let loginemail = document.getElementById('loginuseremail').value;
@@ -126,48 +167,3 @@ function signOut(){
     alert("Failed to Sign Out");
   });
 }
-
-function printDisplayName(){
-  var user = firebase.auth().currentUser;
-  if(user) {
-    db.collection('users').doc(user.uid).get().then((doc) => {
-      if(doc.exists){
-        //console.log("Document data:", doc.data());
-        alert("Your name is: " + doc.data().displayName);
-      } else {
-        console.log("No such document");
-      }
-    });
-  } else {
-    alert("not signed in");
-  }
-}
-
-
-/*var user = firebase.auth().currentUser;
-auth.onAuthStateChanged(user => {
-    if(user) {
-      db.collection('users').inSnapshot(snapshot => {
-        setupUI(user);
-      });
-    } else {
-      setupUI();
-    }
-});
-
-//function displayProfile(){
-const displayTheName = document.querySelector('.display-name');
-//const displayFriends = document.querySelector('.friends');
-
-const setupUI = (user) => {
-  if(user) {
-    const html = '<div>Logged in as ${user.displayName}</div>';
-    displayTheName.innerHTML = html;
-
-    //const html2 = '<div>Logged in as ${user.displayName}</div>';
-    //displayFriends.innerHTML = html2;
-  } else {
-    console.log("not logged in");
-  }
-}*/
-//}
