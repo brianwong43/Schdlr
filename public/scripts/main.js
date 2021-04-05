@@ -25,11 +25,19 @@ firebase.auth().onAuthStateChanged((user) => {
             }
 
             // PHOTO
-            if(user.photoUrl === "") {
-              document.getElementById("profilePicture").src = user.photoUrl;
+            console.log("user photo URL: " + user.photoURL);
+            if(user.photoURL) {//not empty string
+              console.log("in here");
+              var storageRef = firebase.storage().ref("userPhotos/"+user.uid);
+              storageRef.getDownloadURL().then(function(url) {
+                document.getElementById("profilePicture").src = url;
+              }).catch(function(error) {
+                console.log("FAIl");
+              });
             }
           } else {
             console.log("No such document");
+            //document.getElementById("profilePicture").src = "images/ProfilePic.jpg";
           }
         });
       }
@@ -170,9 +178,9 @@ function signOut(){
 
 
 function uploadFile(){
-      
   let storageRef = firebase.storage().ref();
   let file = document.getElementById("editProfilePicture").files[0];
+  console.log("in upload file");
   console.log(file);
   
   let thisRef = storageRef.child(file.name);
@@ -180,8 +188,23 @@ function uploadFile(){
   thisRef.put(file).then(function(snapshot) {
      alert("File Uploaded")
      console.log('Uploaded a blob or file!');
-     document.getElementById("displayProfilePic").src = file;
      
+     document.getElementById("displayProfilePic").src = file;
+     updatePhotoURL(file);
   });
 }
 
+function updatePhotoURL(file){
+  console.log("in update photo url");
+  let user = firebase.auth().currentUser;
+  let avatarStgRef = firebase.storage().ref("userPhotos/" + user.uid);
+
+  avatarStgRef.put(file).then(function(snapshot){
+      snapshot.ref.getDownloadURL().then(function(url){  // Now I can use url
+          user.updateProfile({
+              photoURL: url       // <- URL from uploaded photo.
+          }).then(function(){
+          });
+      });
+  });
+}
