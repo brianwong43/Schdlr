@@ -31,6 +31,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-analytics.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-storage.js"></script>
 
     <script>
       // Your web app's Firebase configuration
@@ -60,7 +61,7 @@
             <div class="form-group">
                 <label for="editProfilePicture">Profile Picture</label>
                 <img src="images/ProfilePic.jpg" id="displayProfilePic">
-                <input type="file" class="form-control" id="editProfilePicture" accept="image/png, image/jpeg">
+                <input type="file"  onchange="uploadFile()" class="form-control" id="editProfilePicture" accept="image/png, image/jpeg">
             </div>
             <div class="form-group">
                 <label for="profileName">Display Name</label>
