@@ -167,3 +167,21 @@ function signOut(){
     alert("Failed to Sign Out");
   });
 }
+
+
+function uploadFile(){
+      
+  let storageRef = firebase.storage().ref();
+  let file = document.getElementById("editProfilePicture").files[0];
+  console.log(file);
+  
+  let thisRef = storageRef.child(file.name);
+
+  thisRef.put(file).then(function(snapshot) {
+     alert("File Uploaded")
+     console.log('Uploaded a blob or file!');
+     document.getElementById("displayProfilePic").src = file;
+     
+  });
+}
+
