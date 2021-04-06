@@ -11,23 +11,6 @@
   </head>
   <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-inverse">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="home.html">Scheduler</a>
-        </div>
-        <ul class="nav navbar-nav">
-          <li><a href="calendar.html">Calendar</a></li>
-          <li class="active"><a href="#">Profile</a></li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="index.html" onclick="signOut()"><span class="glyphicon glyphicon-log-out"></span> Sign Out</a></li>
-        </ul>
-      </div>
-    </nav>
-
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
@@ -60,6 +43,22 @@
     <script src="scripts/User.js"></script>
     <script src="scripts/main.js"></script>
 
+    <!-- Navbar -->
+    <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="home.html">Scheduler</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li><a href="calendar.html">Calendar</a></li>
+          <li class="active"><a href="#">Profile</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="index.html" onclick="signOut()"><span class="glyphicon glyphicon-log-out"></span> Sign Out</a></li>
+        </ul>
+      </div>
+    </nav>
+
     <!-- Content -->
     <div class="container-lg">
       <div class="row" id="account-row">
@@ -68,11 +67,14 @@
         <div class="panel panel-primary" id="account-panels">
           <div class="panel-body"><h1>Account Details</h1></div>
           <div class="panel-footer">
-            <!--Profile Picture-->
-            <img id="profilePicture" src="images/ProfilePic.jpg">
-            <!--Name-->     
-            <span id="profileName"></span>
-            <a href="profileEdit.html">Edit</a>
+            <div class="center-content">
+              <!--Profile Picture-->
+              <img class="crop" id="profilePicture" src="images/ProfilePic.jpg">
+              <!--Name-->     
+              <br><br>
+              <h1 style="text-align: center;"><span id="profileName"></span></h1>
+            </div>
+            <a class="bottom-left" href="profileEdit.html">Edit Profile</a>
           </div>
         </div>
       </div>

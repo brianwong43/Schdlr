@@ -56,3 +56,22 @@ footer {
 #account-row {
     height: 100%;
 }
+
+.crop {
+    width: 100%;
+    border-radius: 50%;
+    margin: auto auto;
+    object-fit: cover;
+}
+
+.bottom-left {
+    bottom: 2px;
+    left: 2px;
+}
+
+.center-content {
+    width: 30%;
+    margin: auto auto;
+    height: 60vh;
+    padding-top: 5%;
+}
