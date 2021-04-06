@@ -5,8 +5,13 @@ firebase.auth().onAuthStateChanged((user) => {
       console.log("User logged in...");
       console.log("PATH: " + window.location.pathname);
 
+      /* INDEX HTML */
+      if(window.location.pathname == "/index.html") {
+        window.location.replace("home.html");
+      }
+
       /* PROFILE.HTML */
-      if(window.location.pathname == "/profile.html") {
+      else if(window.location.pathname == "/profile.html") {
         // NAME
         document.getElementById("profileName").innerHTML = user.displayName;
 
@@ -46,6 +51,14 @@ firebase.auth().onAuthStateChanged((user) => {
       else if(window.location.pathname == "/profileEdit.html") {
         console.log("Inside of edit profile");
         document.getElementById("profileName").value = user.displayName;
+        if(user.photoURL) {//not empty string
+          var storageRef = firebase.storage().ref("userPhotos/"+user.uid);
+          storageRef.getDownloadURL().then(function(url) {
+            document.getElementById("displayProfilePic").src = url;
+          }).catch(function(error) {
+            console.log("FAIl");
+          });
+        }
       }
 
       else {
