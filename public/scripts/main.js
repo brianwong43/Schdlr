@@ -191,33 +191,21 @@ function signOut(){
 
 
 function uploadFile(){
-  let storageRef = firebase.storage().ref();
+  let user = firebase.auth().currentUser;
+  let storageRef = firebase.storage().ref("userPhotos/" + user.uid);  
   let file = document.getElementById("editProfilePicture").files[0];
   console.log("in upload file");
   console.log(file);
   
-  let thisRef = storageRef.child(file.name);
-
-  thisRef.put(file).then(function(snapshot) {
-     alert("File Uploaded")
-     console.log('Uploaded a blob or file!');
-     
-     document.getElementById("displayProfilePic").src = file;
-     updatePhotoURL(file);
-  });
-}
-
-function updatePhotoURL(file){
-  console.log("in update photo url");
-  let user = firebase.auth().currentUser;
-  let avatarStgRef = firebase.storage().ref("userPhotos/" + user.uid);
-
-  avatarStgRef.put(file).then(function(snapshot){
-      snapshot.ref.getDownloadURL().then(function(url){  // Now I can use url
-          user.updateProfile({
-              photoURL: url       // <- URL from uploaded photo.
-          }).then(function(){
-          });
+  storageRef.put(file).then(function(snapshot) {
+    snapshot.ref.getDownloadURL().then(function(url){
+      user.updateProfile({
+        photoURL: url     
+      }).then(function(){
+        alert("File Uploaded");
+        console.log('Uploaded a blob or file!');
+        document.getElementById("displayProfilePic").src = url;
       });
+    });
   });
 }
