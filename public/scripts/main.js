@@ -140,21 +140,28 @@ function addDisplayName(username){
 }
 
 function updateProfile() {
-  let profilePicture = document.getElementById('editProfilePicture').value;
-  console.log("Profile Value: " + profilePicture);
-
+  let user = firebase.auth().currentUser;
   let profileName = document.getElementById('profileName').value;
-  console.log("current: "+firebase.auth().currentUser.displayName);
-  firebase.auth().currentUser.updateProfile({
-      photoUrl: profilePicture,
-      displayName: profileName
-  }).then(function() {
-      console.log(firebase.auth().currentUser.displayName);
-      console.log('User Profile Updated Successfully');
-      window.location.replace("profile.html");
-  }).catch(function(error) {
-  // An error happened.
-    console.log("Problem updating Profile");
+  console.log("current: "+ user.displayName);
+
+  let storageRef = firebase.storage().ref("userPhotos/" + user.uid);  
+  let file = document.getElementById("editProfilePicture").files[0];
+
+  storageRef.put(file).then(function(snapshot) {
+    snapshot.ref.getDownloadURL().then(function(url){
+    user.updateProfile({
+        photoURL: url,
+        displayName: profileName
+    }).then(function() {
+        console.log('User Profile Updated Successfully');
+        alert("File Uploaded");
+        document.getElementById("displayProfilePic").src = url;
+        window.location.replace("profile.html");
+    }).catch(function(error) {
+      // An error happened.
+      console.log("Problem updating Profile");
+    });
+    });
   });
 }
 
@@ -189,23 +196,16 @@ function signOut(){
   });
 }
 
+function displayPhoto() {
+  const preview = document.querySelector('img');
+  const file = document.querySelector('input[type=file]').files[0];
+  const reader = new FileReader();
 
-function uploadFile(){
-  let user = firebase.auth().currentUser;
-  let storageRef = firebase.storage().ref("userPhotos/" + user.uid);  
-  let file = document.getElementById("editProfilePicture").files[0];
-  console.log("in upload file");
-  console.log(file);
-  
-  storageRef.put(file).then(function(snapshot) {
-    snapshot.ref.getDownloadURL().then(function(url){
-      user.updateProfile({
-        photoURL: url     
-      }).then(function(){
-        alert("File Uploaded");
-        console.log('Uploaded a blob or file!');
-        document.getElementById("displayProfilePic").src = url;
-      });
-    });
-  });
+  reader.addEventListener("load", function() {
+    preview.src = reader.result;
+  }, false);
+
+  if(file) {
+    reader.readAsDataURL(file);
+  }
 }
