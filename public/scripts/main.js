@@ -214,6 +214,7 @@ function displayPhoto() {
 toggle between hiding and showing the dropdown content */
 function searchDropdown() {
   document.getElementById("myDropdown").classList.toggle("show");
+  document.getElementById("myInput").oninput = searchForFriends;
 }
 
 function filterFunction() {
@@ -233,25 +234,36 @@ function filterFunction() {
 }
 
 function searchForFriends() {
+  console.log("in search for friends");
   var input, div;
   input = document.getElementById("myInput").value.toUpperCase();
-  div = document.getElementById("myDropdown");
-
+  div = document.getElementById("peopleList");
+  while (div.firstChild) {//clears dropdown list
+    div.removeChild(div.firstChild);
+  }
+  var counter=0;
   // Search through all users with overlap
   db.collection('users').get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
-          // Viewing each UID
+          console.log(counter);
           var userObject = doc.data();
           var name = userObject.displayName.toUpperCase();
           console.log("Looking at user: " + name);
-          if(name.startsWith(input)) {
+          console.log("input:" +input);
+          if(counter<4 && name.startsWith(input) && input!=="") {
+            console.log("in here:");
             // append as a child
+            var people = document.createElement("LI");
+            people.setAttribute("class", "list-group-item");
+            people.innerHTML = name;
+            console.log(people);
+            document.getElementById("peopleList").appendChild(people);
+            counter++;
           }
       });
   })
   .catch((error) => {
       console.log("Error getting documents: ", error);
   });
-
 }
