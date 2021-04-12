@@ -231,3 +231,27 @@ function filterFunction() {
     }
   }
 }
+
+function searchForFriends() {
+  var input, div;
+  input = document.getElementById("myInput").value.toUpperCase();
+  div = document.getElementById("myDropdown");
+
+  // Search through all users with overlap
+  db.collection('users').get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+          // Viewing each UID
+          var userObject = doc.data();
+          var name = userObject.displayName.toUpperCase();
+          console.log("Looking at user: " + name);
+          if(name.startsWith(input)) {
+            // append as a child
+          }
+      });
+  })
+  .catch((error) => {
+      console.log("Error getting documents: ", error);
+  });
+
+}
