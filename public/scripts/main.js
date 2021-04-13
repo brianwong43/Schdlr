@@ -1,3 +1,4 @@
+var semaphore = 0; // Asynchronus lock
 
 firebase.auth().onAuthStateChanged((user) => {
     if(user) {
@@ -61,7 +62,43 @@ firebase.auth().onAuthStateChanged((user) => {
         }
       }
 
-      else {
+      /* OTHERUSERPROFILE.HTML */
+      else if(window.location.pathname == "/otherUserProfile.html") {
+        var uid = location.search.substring(1);
+        console.log("UID: "+uid);
+        db.collection('users').doc(uid).get().then((doc) => {
+          if(doc.exists){
+            var userObject = doc.data();
+            console.log("USER: " + userObject);
+            document.getElementById("friendsName").innerHTML = userObject.displayName;
+
+            var friendList = userObject.friends;
+
+            for(var i=0; i<friendList.length; i++){
+              var friend = document.createElement("LI");
+              friend.setAttribute("class", "list-group-item");
+              friend.innerHTML = friendList[i];
+              document.getElementById("friendsFriends").appendChild(friend);
+            }
+
+            // PHOTO
+            console.log("user photo URL: " + userObject.photoURL);
+            if(userObject.photoURL) {//not empty string
+              var storageRef = firebase.storage().ref("userPhotos/"+userObject.uid);
+              storageRef.getDownloadURL().then(function(url) {
+                document.getElementById("profilePicture").src = url;
+              }).catch(function(error) {
+                console.log("FAIl");
+              });
+            } else {
+              console.log("No such document");
+              //document.getElementById("profilePicture").src = "images/ProfilePic.jpg";
+            }
+          }
+        });
+
+
+      } else {
         db.collection('users').doc(user.uid).get().then((doc) => {
           if(doc.exists){
             console.log("Document data:", doc.data());
@@ -115,7 +152,7 @@ function createUser(username){
       
       db.collection("users").doc(user.uid)
       .withConverter(userConverter)
-      .set(new User(username, [], ""))
+      .set(new User(user.uid, username, [], ""))
       .then(() => {
         console.log("Document successfully written!");
         addDisplayName(username);
@@ -217,7 +254,7 @@ function searchDropdown() {
   document.getElementById("myInput").oninput = searchForFriends;
 }
 
-function filterFunction() {
+/*function filterFunction() {
   var input, filter, ul, li, a, i;
   input = document.getElementById("myInput");
   filter = input.value.toUpperCase();
@@ -231,39 +268,40 @@ function filterFunction() {
       a[i].style.display = "none";
     }
   }
-}
+}*/
 
 function searchForFriends() {
-  console.log("in search for friends");
-  var input, div;
-  input = document.getElementById("myInput").value.toUpperCase();
-  div = document.getElementById("peopleList");
-  while (div.firstChild) {//clears dropdown list
-    div.removeChild(div.firstChild);
+  if(semaphore == 0) {
+    semaphore = 1;
+    console.log("SEARCH FOR FRIENDS");
+    var input = document.getElementById("myInput").value.toUpperCase();
+    var div = document.getElementById("peopleList");
+    while (div.firstChild) {//clears dropdown list
+      div.removeChild(div.firstChild);
+    }
+    var counter=0;
+    // Search through all users with overlap
+    db.collection('users').get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            console.log(counter);
+            var userObject = doc.data();
+            var name = userObject.displayName.toUpperCase();
+            console.log("Looking at user: " + name);
+            console.log("input:" +input);
+            if(counter<4 && name.startsWith(input) && input!=="") {
+              // append as a child
+              var people = document.createElement("LI");
+              people.setAttribute("class", "list-group-item");
+              people.innerHTML = "<a href='otherUserProfile.html?"+userObject.uid+"'>"+userObject.displayName+"</a>";
+              document.getElementById("peopleList").appendChild(people);
+              counter++;
+            }
+        });
+        semaphore = 0;
+    })
+    .catch((error) => {
+        console.log("Error getting documents: ", error);
+    });
   }
-  var counter=0;
-  // Search through all users with overlap
-  db.collection('users').get()
-    .then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-          console.log(counter);
-          var userObject = doc.data();
-          var name = userObject.displayName.toUpperCase();
-          console.log("Looking at user: " + name);
-          console.log("input:" +input);
-          if(counter<4 && name.startsWith(input) && input!=="") {
-            console.log("in here:");
-            // append as a child
-            var people = document.createElement("LI");
-            people.setAttribute("class", "list-group-item");
-            people.innerHTML = name;
-            console.log(people);
-            document.getElementById("peopleList").appendChild(people);
-            counter++;
-          }
-      });
-  })
-  .catch((error) => {
-      console.log("Error getting documents: ", error);
-  });
 }
