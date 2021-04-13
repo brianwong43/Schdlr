@@ -56,6 +56,16 @@
         <ul class="nav navbar-nav navbar-right">
           <li><a href="index.html" onclick="signOut()"><span class="glyphicon glyphicon-log-out"></span> Sign Out</a></li>
         </ul>
+
+        <!-- Search Bar -->
+        <div class="dropdown nav navbar-nav navbar-right">
+          <button onclick="searchDropdown()" class="dropbtn">Dropdown</button>
+          <div id="myDropdown" class="dropdown-content">
+            <input type="text" placeholder="Search.." id="myInput">
+            <ul class="list-group" id="peopleList"></ul>
+          </div>
+        </div>
+
       </div>
     </nav>
 
@@ -86,7 +96,7 @@
           <div class="panel-footer">
             <!--input type="text" id="searchBar" placeholder="Search for Friends..."-->
             <p>Friends:</p>
-            <ul class="list-group" id="profileFriends"></ul>
+            <ul class="list-group" id="friendsFriends"></ul>
           </div>
         </div>
       </div>
