@@ -33,17 +33,10 @@ firebase.auth().onAuthStateChanged((user) => {
             // PHOTO
             console.log("user photo URL: " + user.photoURL);
             if(user.photoURL) {//not empty string
-              console.log("in here");
-              var storageRef = firebase.storage().ref("userPhotos/"+user.uid);
-              storageRef.getDownloadURL().then(function(url) {
-                document.getElementById("profilePicture").src = url;
-              }).catch(function(error) {
-                console.log("FAIl");
-              });
+              document.getElementById("profilePicture").src = user.photoURL;
             }
           } else {
             console.log("No such document");
-            //document.getElementById("profilePicture").src = "images/ProfilePic.jpg";
           }
         });
       }
@@ -53,12 +46,7 @@ firebase.auth().onAuthStateChanged((user) => {
         console.log("Inside of edit profile");
         document.getElementById("profileName").value = user.displayName;
         if(user.photoURL) {//not empty string
-          var storageRef = firebase.storage().ref("userPhotos/"+user.uid);
-          storageRef.getDownloadURL().then(function(url) {
-            document.getElementById("displayProfilePic").src = url;
-          }).catch(function(error) {
-            console.log("FAIl");
-          });
+          document.getElementById("displayProfilePic").src = user.photoURL;
         }
       }
 
@@ -84,12 +72,12 @@ firebase.auth().onAuthStateChanged((user) => {
             // PHOTO
             console.log("user photo URL: " + userObject.photoURL);
             if(userObject.photoURL) {//not empty string
-              var storageRef = firebase.storage().ref("userPhotos/"+userObject.uid);
-              storageRef.getDownloadURL().then(function(url) {
-                document.getElementById("profilePicture").src = url;
-              }).catch(function(error) {
-                console.log("FAIl");
-              });
+              //var storageRef = firebase.storage().ref("userPhotos/"+userObject.uid);
+              //storageRef.getDownloadURL().then(function(url) {
+                document.getElementById("friendsPicture").src = userObject.photoURL;
+              //}).catch(function(error) {
+              //  console.log("FAIl");
+              //});
             } else {
               console.log("No such document");
               //document.getElementById("profilePicture").src = "images/ProfilePic.jpg";
@@ -190,16 +178,28 @@ function updateProfile() {
         photoURL: url,
         displayName: profileName
     }).then(function() {
-        console.log('User Profile Updated Successfully');
-        alert("File Uploaded");
-        document.getElementById("displayProfilePic").src = url;
-        window.location.replace("profile.html");
+      // Update firestore as well
+      updateUserObject(user.uid, profileName, url);
+      console.log('User Profile Updated Successfully');
+      alert("File Uploaded");
+      document.getElementById("displayProfilePic").src = url;
+      window.location.replace("profile.html");
+
     }).catch(function(error) {
       // An error happened.
       console.log("Problem updating Profile");
     });
     });
   });
+}
+
+function updateUserObject(uid, profileName, url) {
+
+  db.collection("users").doc(uid).update({
+    displayName: profileName,
+    photoURL: url
+  });
+  console.log("Success?");
 }
 
 function login() {
@@ -253,22 +253,6 @@ function searchDropdown() {
   document.getElementById("myDropdown").classList.toggle("show");
   document.getElementById("myInput").oninput = searchForFriends;
 }
-
-/*function filterFunction() {
-  var input, filter, ul, li, a, i;
-  input = document.getElementById("myInput");
-  filter = input.value.toUpperCase();
-  div = document.getElementById("myDropdown");
-  a = div.getElementsByTagName("a");
-  for (i = 0; i < a.length; i++) {
-    txtValue = a[i].textContent || a[i].innerText;
-    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-      a[i].style.display = "";
-    } else {
-      a[i].style.display = "none";
-    }
-  }
-}*/
 
 function searchForFriends() {
   if(semaphore == 0) {
