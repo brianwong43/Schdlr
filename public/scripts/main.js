@@ -163,26 +163,44 @@ function updateProfile() {
 
   let storageRef = firebase.storage().ref("userPhotos/" + user.uid);  
   let file = document.getElementById("editProfilePicture").files[0];
-  
-  storageRef.put(file).then(function(snapshot) {
-    snapshot.ref.getDownloadURL().then(function(url){  
+  if(file === undefined){
     user.updateProfile({
-        photoURL: url,
         displayName: profileName
     }).then(
       // Update firestore as well
-      updateUserObject(user.uid, profileName, url)
-   ).then(function() {
-      console.log('User Profile Updated Successfully');
-      alert("File Uploaded");
-      document.getElementById("displayProfilePic").src = url;
-      window.location.replace("profile.html");
-    }).catch(function(error) {
-      // An error happened.
-      console.log("Problem updating Profile");
-    });
-    });
-  });
+      db.collection('users').doc(user.uid).update({
+        displayName: profileName,
+      })
+      ).then(function() {
+        console.log('User Profile Updated Successfully');
+        alert("File Uploaded");
+        window.location.replace("profile.html");
+      }).catch(function(error) {
+        // An error happened.
+        console.log("Problem updating Profile name");
+      });
+    }
+  else {
+    storageRef.put(file).then(function(snapshot) {
+      snapshot.ref.getDownloadURL().then(function(url){  
+      user.updateProfile({
+          photoURL: url,
+          displayName: profileName
+      }).then(
+        // Update firestore as well
+        updateUserObject(user.uid, profileName, url)
+        ).then(function() {
+          console.log('User Profile Updated Successfully');
+          alert("File Uploaded");
+          document.getElementById("displayProfilePic").src = url;
+          window.location.replace("profile.html");
+        }).catch(function(error) {
+          // An error happened.
+          console.log("Problem updating Profile name + photo");
+        });
+        });
+      });
+  }
 }
 
 function updateUserObject(uid, profileName, url) {
