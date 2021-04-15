@@ -1,4 +1,6 @@
-var semaphore = 0; // Asynchronus lock
+// Asynchronus locks
+var searchFriendsSemaphore = 0; 
+var nameListSemaphore = 0;
 
 firebase.auth().onAuthStateChanged((user) => {
     if(user) {
@@ -23,12 +25,13 @@ firebase.auth().onAuthStateChanged((user) => {
             var userObject = doc.data();
             var friendList = userObject.friends;
 
-            for(var i=0; i<friendList.length; i++){
-              var friend = document.createElement("LI");
-              friend.setAttribute("class", "list-group-item");
-              friend.innerHTML = friendList[i];
-              document.getElementById("profileFriends").appendChild(friend);
-            }
+            //var nameList = makeFriendNameList(friendList).then(appendNames(nameList));
+            var nameList = makeFriendNameList(friendList);
+            console.log("Before Loop: "+nameList);
+            var count = 9999;
+            while(nameListSemaphore == 0 && count>0){ count--; }
+            console.log("After Loop");
+            appendNames(nameList);
 
             // PHOTO
             console.log("user photo URL: " + user.photoURL);
@@ -92,6 +95,40 @@ firebase.auth().onAuthStateChanged((user) => {
       console.log("User logged out");
     }
 });
+
+function appendNames(nameList) {
+  console.log("Name List: "+nameList);
+  for(var i=0; i<nameList.length; i++){
+    var friend = document.createElement("LI");
+    friend.setAttribute("class", "list-group-item");
+    friend.innerHTML = nameList[i];
+    document.getElementById("profileFriends").appendChild(friend);
+    nameListSemaphore = 0;
+  }
+}
+
+function makeFriendNameList(uidList) {
+  var nameList = [];
+  // Loop through all users
+  db.collection('users').get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          var userObject = doc.data();
+          console.log("User name: "+userObject.displayName);
+          // Loop through all friend UIDs
+          for(const uid of uidList) {
+            // If UserObject is a friend
+            if(userObject.uid == uid) {
+              console.log("Pushing: "+userObject.displayName);
+              nameList.push(userObject.displayName);
+            }
+          }
+        });
+        console.log("Changing semaphore: "+nameList);
+        nameListSemaphore = 1;
+        return nameList;
+      });
+}
 
 function signup() {
     let email = document.getElementById('useremail').value;
@@ -263,8 +300,8 @@ function searchDropdown() {
 }
 
 function searchForFriends() {
-  if(semaphore == 0) {
-    semaphore = 1;
+  if(searchFriendsSemaphore == 0) {
+    searchFriendsSemaphore = 1;
     console.log("SEARCH FOR FRIENDS");
     var input = document.getElementById("myInput").value.toUpperCase();
     var div = document.getElementById("peopleList");
@@ -290,10 +327,19 @@ function searchForFriends() {
               counter++;
             }
         });
-        semaphore = 0;
+        searchFriendsSemaphore = 0;
     })
     .catch((error) => {
         console.log("Error getting documents: ", error);
     });
   }
+}
+
+function addFriend() {
+  var user = firebase.auth().currentUser;
+  var uid = location.search.substring(1);
+  console.log("Added Friend UID: "+uid);
+  db.collection('users').doc(user.uid).update({
+    friends: firebase.firestore.FieldValue.arrayUnion(uid)
+  });
 }
