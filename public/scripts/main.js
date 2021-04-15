@@ -72,19 +72,12 @@ firebase.auth().onAuthStateChanged((user) => {
             // PHOTO
             console.log("user photo URL: " + userObject.photoURL);
             if(userObject.photoURL) {//not empty string
-              //var storageRef = firebase.storage().ref("userPhotos/"+userObject.uid);
-              //storageRef.getDownloadURL().then(function(url) {
-                document.getElementById("friendsPicture").src = userObject.photoURL;
-              //}).catch(function(error) {
-              //  console.log("FAIl");
-              //});
+              document.getElementById("friendsPicture").src = userObject.photoURL;
             } else {
               console.log("No such document");
-              //document.getElementById("profilePicture").src = "images/ProfilePic.jpg";
             }
           }
         });
-
 
       } else {
         db.collection('users').doc(user.uid).get().then((doc) => {
@@ -161,7 +154,6 @@ function addDisplayName(username){
     }).catch(function(error) {
     // An error happened.
     });
-    
 }
 
 function updateProfile() {
@@ -171,20 +163,20 @@ function updateProfile() {
 
   let storageRef = firebase.storage().ref("userPhotos/" + user.uid);  
   let file = document.getElementById("editProfilePicture").files[0];
-
+  
   storageRef.put(file).then(function(snapshot) {
-    snapshot.ref.getDownloadURL().then(function(url){
+    snapshot.ref.getDownloadURL().then(function(url){  
     user.updateProfile({
         photoURL: url,
         displayName: profileName
-    }).then(function() {
+    }).then(
       // Update firestore as well
-      updateUserObject(user.uid, profileName, url);
+      updateUserObject(user.uid, profileName, url)
+   ).then(function() {
       console.log('User Profile Updated Successfully');
       alert("File Uploaded");
       document.getElementById("displayProfilePic").src = url;
       window.location.replace("profile.html");
-
     }).catch(function(error) {
       // An error happened.
       console.log("Problem updating Profile");
@@ -194,12 +186,10 @@ function updateProfile() {
 }
 
 function updateUserObject(uid, profileName, url) {
-
-  db.collection("users").doc(uid).update({
+  db.collection('users').doc(uid).update({
     displayName: profileName,
     photoURL: url
   });
-  console.log("Success?");
 }
 
 function login() {
