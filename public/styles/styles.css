@@ -84,6 +84,9 @@ footer {
     margin: auto auto;
 }
 
+a {
+  display: block;
+}
 
 
 /* DROPDOWN SHIT */
