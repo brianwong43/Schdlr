@@ -1,6 +1,5 @@
 // Asynchronus locks
 var searchFriendsSemaphore = 0; 
-var nameListSemaphore = 0;
 
 firebase.auth().onAuthStateChanged((user) => {
     if(user) {
@@ -25,26 +24,22 @@ firebase.auth().onAuthStateChanged((user) => {
             var userObject = doc.data();
             var friendList = userObject.friends;
 
-            //var nameList = makeFriendNameList(friendList).then(appendNames(nameList));
-            // var nameList = makeFriendNameList(friendList);
-            // console.log("Before Loop: "+nameList);
-            // var count = 9999;
-            // while(nameListSemaphore == 0 && count>0){ count--; }
-            // console.log("After Loop");
-            // appendNames(nameList);
-
-            var nameList = getFriendNameList(friendList);
-            //in then, adds the friend names into a comma parsed array
-            nameList.then(value => {console.log(value.length);console.log(value);console.log("name: "+value.toString());  var newList = value.toString().split(',');
-            console.log("newList size: "+newList.length); 
-            const somethingWasSuccesful = true;
-            return new Promise((resolve, reject)=>{
-              if (somethingWasSuccesful) {
-                 resolve(appendNames(newList)); //finally call append names function    
-              } else {
-                 reject();
-              }
-           })});
+            if(friendList.length > 0) {
+              var nameList = getFriendNameList(friendList);
+              //in then, adds the friend names into a comma parsed array
+              console.log("Name list: "+nameList);
+              nameList.then(value => {
+                console.log("Value: "+value);
+                var newList = value.toString().split(',');
+                const somethingWasSuccesful = true;
+                return new Promise((resolve, reject)=>{
+                if (somethingWasSuccesful) {
+                  resolve(appendNames(newList, "profileFriends")); //finally call append names function    
+                } else {
+                  reject();
+                }
+              })});
+            }
 
             // PHOTO
             console.log("user photo URL: " + user.photoURL);
@@ -70,6 +65,20 @@ firebase.auth().onAuthStateChanged((user) => {
       else if(window.location.pathname == "/otherUserProfile.html") {
         var uid = location.search.substring(1);
         console.log("UID: "+uid);
+
+        var addBtn = document.getElementById("addFriendButton");
+        db.collection('users').doc(user.uid).get().then((doc) => {
+          var currUser = doc.data();
+          var currUserFriends = currUser.friends;
+          for(const friendUid of currUserFriends) {
+            if(uid == friendUid) {
+              addBtn.style.display = "none";
+              console.log("Already friends");
+              break;
+            }
+          }
+        });
+
         db.collection('users').doc(uid).get().then((doc) => {
           if(doc.exists){
             var userObject = doc.data();
@@ -78,11 +87,20 @@ firebase.auth().onAuthStateChanged((user) => {
 
             var friendList = userObject.friends;
 
-            for(var i=0; i<friendList.length; i++){
-              var friend = document.createElement("LI");
-              friend.setAttribute("class", "list-group-item");
-              friend.innerHTML = friendList[i];
-              document.getElementById("friendsFriends").appendChild(friend);
+            if(friendList.length > 0) {
+              var nameList = getFriendNameList(friendList);
+              console.log("Name list: "+nameList);
+              //in then, adds the friend names into a comma parsed array
+              nameList.then(value => {
+                var newList = value.toString().split(',');
+                const somethingWasSuccesful = true;
+                return new Promise((resolve, reject)=>{
+                if (somethingWasSuccesful) {
+                  resolve(appendNames(newList, "friendsFriends")); //finally call append names function    
+                } else {
+                  reject();
+                }
+              })});
             }
 
             // PHOTO
@@ -109,13 +127,22 @@ firebase.auth().onAuthStateChanged((user) => {
     }
 });
 
-async function appendNames(nameList) {
+/*
+ * Used by PROFILE.HTML and OTHERUSERPROFILE.HTML in Auth Change
+ *
+ */
+async function appendNames(nameList, appendId) {
+  var user = firebase.auth().currentUser;
   console.log("Name List: "+nameList);
-  for(var i=0; i<nameList.length; i++){
+  for(var i=0; i<nameList.length; i=i+2){
     var friend = document.createElement("LI");
     friend.setAttribute("class", "list-group-item");
-    friend.innerHTML = nameList[i];
-    document.getElementById("profileFriends").appendChild(friend);
+    if(user.uid == nameList[i]) {
+      friend.innerHTML = "<a href='profile.html'>"+nameList[i+1]+"</a>";
+    } else {
+      friend.innerHTML = "<a href='otherUserProfile.html?"+nameList[i]+"'>"+nameList[i+1]+"</a>";
+    }
+    document.getElementById(appendId).appendChild(friend);
   }
 }
 
@@ -126,13 +153,11 @@ const getFriendNameList = async (uidList) => {
     snapshot.forEach(
     (doc) => {
       var userObject = doc.data();
-          console.log("User name: "+userObject.displayName);
           // Loop through all friend UIDs
           for(const uid of uidList) {
             // If UserObject is a friend
             if(userObject.uid == uid) {
-              console.log("Pushing: "+userObject.displayName);
-              nameList.push(userObject.displayName);
+              nameList.push([userObject.uid, userObject.displayName]);
             }
           }
       }
@@ -140,29 +165,6 @@ const getFriendNameList = async (uidList) => {
     console.log("nameList size: "+nameList.length);
   return nameList;
 };
-
-function makeFriendNameList(uidList) {
-  var nameList = [];
-  // Loop through all users
-  db.collection('users').get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          var userObject = doc.data();
-          console.log("User name: "+userObject.displayName);
-          // Loop through all friend UIDs
-          for(const uid of uidList) {
-            // If UserObject is a friend
-            if(userObject.uid == uid) {
-              console.log("Pushing: "+userObject.displayName);
-              nameList.push(userObject.displayName);
-            }
-          }
-        });
-        console.log("Changing semaphore: "+nameList);
-        nameListSemaphore = 1;
-        return nameList;
-      });
-}
 
 function signup() {
     let email = document.getElementById('useremail').value;
@@ -352,7 +354,7 @@ function searchForFriends() {
             var name = userObject.displayName.toUpperCase();
             console.log("Looking at user: " + name);
             console.log("input:" +input);
-            if(counter<4 && name.startsWith(input) && input!=="") {
+            if(counter<4 && name.startsWith(input) && input!=="" && userObject.uid !== firebase.auth().currentUser.uid) {
               // append as a child
               var people = document.createElement("LI");
               people.setAttribute("class", "list-group-item");
@@ -370,6 +372,8 @@ function searchForFriends() {
 }
 
 function addFriend() {
+  var addBtn = document.getElementById("addFriendButton");
+  addBtn.style.display = "none";
   var user = firebase.auth().currentUser;
   var uid = location.search.substring(1);
   console.log("Added Friend UID: "+uid);
