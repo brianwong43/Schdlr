@@ -26,12 +26,25 @@ firebase.auth().onAuthStateChanged((user) => {
             var friendList = userObject.friends;
 
             //var nameList = makeFriendNameList(friendList).then(appendNames(nameList));
-            var nameList = makeFriendNameList(friendList);
-            console.log("Before Loop: "+nameList);
-            var count = 9999;
-            while(nameListSemaphore == 0 && count>0){ count--; }
-            console.log("After Loop");
-            appendNames(nameList);
+            // var nameList = makeFriendNameList(friendList);
+            // console.log("Before Loop: "+nameList);
+            // var count = 9999;
+            // while(nameListSemaphore == 0 && count>0){ count--; }
+            // console.log("After Loop");
+            // appendNames(nameList);
+
+            var nameList = getFriendNameList(friendList);
+            //in then, adds the friend names into a comma parsed array
+            nameList.then(value => {console.log(value.length);console.log(value);console.log("name: "+value.toString());  var newList = value.toString().split(',');
+            console.log("newList size: "+newList.length); 
+            const somethingWasSuccesful = true;
+            return new Promise((resolve, reject)=>{
+              if (somethingWasSuccesful) {
+                 resolve(appendNames(newList)); //finally call append names function    
+              } else {
+                 reject();
+              }
+           })});
 
             // PHOTO
             console.log("user photo URL: " + user.photoURL);
@@ -96,16 +109,37 @@ firebase.auth().onAuthStateChanged((user) => {
     }
 });
 
-function appendNames(nameList) {
+async function appendNames(nameList) {
   console.log("Name List: "+nameList);
   for(var i=0; i<nameList.length; i++){
     var friend = document.createElement("LI");
     friend.setAttribute("class", "list-group-item");
     friend.innerHTML = nameList[i];
     document.getElementById("profileFriends").appendChild(friend);
-    nameListSemaphore = 0;
   }
 }
+
+const getFriendNameList = async (uidList) => {
+  let nameList = [];
+  const snapshot = await db.collection('users')
+      .get()
+    snapshot.forEach(
+    (doc) => {
+      var userObject = doc.data();
+          console.log("User name: "+userObject.displayName);
+          // Loop through all friend UIDs
+          for(const uid of uidList) {
+            // If UserObject is a friend
+            if(userObject.uid == uid) {
+              console.log("Pushing: "+userObject.displayName);
+              nameList.push(userObject.displayName);
+            }
+          }
+      }
+    );
+    console.log("nameList size: "+nameList.length);
+  return nameList;
+};
 
 function makeFriendNameList(uidList) {
   var nameList = [];
