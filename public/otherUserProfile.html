@@ -59,7 +59,7 @@
 
         <!-- Search Bar -->
         <div class="dropdown nav navbar-nav navbar-right">
-          <button onclick="searchDropdown()" class="dropbtn">Dropdown</button>
+          <button onclick="searchDropdown()" class="dropbtn">Search</button>
           <div id="myDropdown" class="dropdown-content">
             <input type="text" placeholder="Search.." id="myInput">
             <ul class="list-group" id="peopleList"></ul>
@@ -84,7 +84,8 @@
             <br><br>
             <!--Name-->  
             <h1 style="text-align: center;"><span id="friendsName"></span></h1><br>
-            <button type="button" class="btn btn-primary" id="addFriendButton" onclick="addFriend()">Add Friend</a>
+            <button type="button" class="btn btn-primary" id="addFriendButton" onclick="addFriend()">Add Friend</button>
+            <button style="color: red; display: none;" id="removeFriendButton" onclick="removeFriend()">Remove Friend</button>
           </div>
         </div>
       </div>

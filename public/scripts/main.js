@@ -17,35 +17,20 @@ firebase.auth().onAuthStateChanged((user) => {
         // NAME
         document.getElementById("profileName").innerHTML = user.displayName;
 
+        // PHOTO
+        console.log("user photo URL: " + user.photoURL);
+        document.getElementById("profilePicture").src = user.photoURL;
+
         // FRIENDS
         db.collection('users').doc(user.uid).get().then((doc) => {
           if(doc.exists){
             console.log("Document data:", doc.data());
             var userObject = doc.data();
             var friendList = userObject.friends;
-
             if(friendList.length > 0) {
-              var nameList = getFriendNameList(friendList);
-              //in then, adds the friend names into a comma parsed array
-              console.log("Name list: "+nameList);
-              nameList.then(value => {
-                console.log("Value: "+value);
-                var newList = value.toString().split(',');
-                const somethingWasSuccesful = true;
-                return new Promise((resolve, reject)=>{
-                if (somethingWasSuccesful) {
-                  resolve(appendNames(newList, "profileFriends")); //finally call append names function    
-                } else {
-                  reject();
-                }
-              })});
+              appendNames(friendList, "profileFriends");
             }
 
-            // PHOTO
-            console.log("user photo URL: " + user.photoURL);
-            if(user.photoURL) {//not empty string
-              document.getElementById("profilePicture").src = user.photoURL;
-            }
           } else {
             console.log("No such document");
           }
@@ -56,9 +41,7 @@ firebase.auth().onAuthStateChanged((user) => {
       else if(window.location.pathname == "/profileEdit.html") {
         console.log("Inside of edit profile");
         document.getElementById("profileName").value = user.displayName;
-        if(user.photoURL) {//not empty string
-          document.getElementById("displayProfilePic").src = user.photoURL;
-        }
+        document.getElementById("displayProfilePic").src = user.photoURL;
       }
 
       /* OTHERUSERPROFILE.HTML */
@@ -67,12 +50,14 @@ firebase.auth().onAuthStateChanged((user) => {
         console.log("UID: "+uid);
 
         var addBtn = document.getElementById("addFriendButton");
+        var rmvBtn = document.getElementById("removeFriendButton");
         db.collection('users').doc(user.uid).get().then((doc) => {
           var currUser = doc.data();
           var currUserFriends = currUser.friends;
           for(const friendUid of currUserFriends) {
             if(uid == friendUid) {
               addBtn.style.display = "none";
+              rmvBtn.style.display = "block";
               console.log("Already friends");
               break;
             }
@@ -85,31 +70,15 @@ firebase.auth().onAuthStateChanged((user) => {
             console.log("USER: " + userObject);
             document.getElementById("friendsName").innerHTML = userObject.displayName;
 
-            var friendList = userObject.friends;
-
-            if(friendList.length > 0) {
-              var nameList = getFriendNameList(friendList);
-              console.log("Name list: "+nameList);
-              //in then, adds the friend names into a comma parsed array
-              nameList.then(value => {
-                var newList = value.toString().split(',');
-                const somethingWasSuccesful = true;
-                return new Promise((resolve, reject)=>{
-                if (somethingWasSuccesful) {
-                  resolve(appendNames(newList, "friendsFriends")); //finally call append names function    
-                } else {
-                  reject();
-                }
-              })});
-            }
-
             // PHOTO
             console.log("user photo URL: " + userObject.photoURL);
-            if(userObject.photoURL) {//not empty string
-              document.getElementById("friendsPicture").src = userObject.photoURL;
-            } else {
-              console.log("No such document");
+            document.getElementById("friendsPicture").src = userObject.photoURL;
+
+            var friendList = userObject.friends;
+            if(friendList.length > 0) {
+              appendNames(friendList, "friendsFriends");
             }
+
           }
         });
 
@@ -129,42 +98,25 @@ firebase.auth().onAuthStateChanged((user) => {
 
 /*
  * Used by PROFILE.HTML and OTHERUSERPROFILE.HTML in Auth Change
- *
  */
-async function appendNames(nameList, appendId) {
+function appendNames(nameList, appendId) {
   var user = firebase.auth().currentUser;
   console.log("Name List: "+nameList);
-  for(var i=0; i<nameList.length; i=i+2){
-    var friend = document.createElement("LI");
-    friend.setAttribute("class", "list-group-item");
-    if(user.uid == nameList[i]) {
-      friend.innerHTML = "<a href='profile.html'>"+nameList[i+1]+"</a>";
-    } else {
-      friend.innerHTML = "<a href='otherUserProfile.html?"+nameList[i]+"'>"+nameList[i+1]+"</a>";
-    }
-    document.getElementById(appendId).appendChild(friend);
+  for(var i=0; i<nameList.length; i=i+1) {
+    db.collection('users').doc(nameList[i]).get().then((doc) => {
+      var userObject = doc.data();
+      var friend = document.createElement("LI");
+      friend.setAttribute("class", "list-group-item");
+      if(user.uid == userObject.uid) {
+        friend.innerHTML = "<a href='profile.html'><img class='listItemPhoto' src='"+user.photoURL+"'>"+user.displayName+"</a>";
+      } else {
+        friend.innerHTML = "<a href='otherUserProfile.html?"+userObject.uid+"'><img class='listItemPhoto' src='"+userObject.photoURL+"'>"+userObject.displayName+"</a>";
+      }
+
+      document.getElementById(appendId).appendChild(friend);
+    });
   }
 }
-
-const getFriendNameList = async (uidList) => {
-  let nameList = [];
-  const snapshot = await db.collection('users')
-      .get()
-    snapshot.forEach(
-    (doc) => {
-      var userObject = doc.data();
-          // Loop through all friend UIDs
-          for(const uid of uidList) {
-            // If UserObject is a friend
-            if(userObject.uid == uid) {
-              nameList.push([userObject.uid, userObject.displayName]);
-            }
-          }
-      }
-    );
-    console.log("nameList size: "+nameList.length);
-  return nameList;
-};
 
 function signup() {
     let email = document.getElementById('useremail').value;
@@ -206,20 +158,21 @@ function createUser(username){
       
       db.collection("users").doc(user.uid)
       .withConverter(userConverter)
-      .set(new User(user.uid, username, [], ""))
+      .set(new User(user.uid, username, [], "https://firebasestorage.googleapis.com/v0/b/schdlr-b3435.appspot.com/o/userPhotos%2FProfilePic.jpg?alt=media&token=894cb453-e99b-4663-8cf6-303e15d41269"))
       .then(() => {
         console.log("Document successfully written!");
-        addDisplayName(username);
+        addDisplayNameAndPhotoURL(username);
         })
         .catch((error) => {
         console.error("Error writing document: ", error);
     });
 }
 
-function addDisplayName(username){
+function addDisplayNameAndPhotoURL(username){
     console.log("current: "+firebase.auth().currentUser.displayName);
     firebase.auth().currentUser.updateProfile({
-        displayName: username
+        displayName: username,
+        photoURL: "https://firebasestorage.googleapis.com/v0/b/schdlr-b3435.appspot.com/o/userPhotos%2FProfilePic.jpg?alt=media&token=894cb453-e99b-4663-8cf6-303e15d41269"
     }).then(function() {
         console.log(firebase.auth().currentUser.displayName);
         console.log('User Profile Updated Successfully');
@@ -358,7 +311,7 @@ function searchForFriends() {
               // append as a child
               var people = document.createElement("LI");
               people.setAttribute("class", "list-group-item");
-              people.innerHTML = "<a href='otherUserProfile.html?"+userObject.uid+"'>"+userObject.displayName+"</a>";
+              people.innerHTML = "<a href='otherUserProfile.html?"+userObject.uid+"'><img class='listItemPhoto' src='"+userObject.photoURL+"'>"+userObject.displayName+"</a>";
               document.getElementById("peopleList").appendChild(people);
               counter++;
             }
@@ -373,11 +326,26 @@ function searchForFriends() {
 
 function addFriend() {
   var addBtn = document.getElementById("addFriendButton");
+  var rmvBtn = document.getElementById("removeFriendButton");
   addBtn.style.display = "none";
+  rmvBtn.style.display = "block";
   var user = firebase.auth().currentUser;
   var uid = location.search.substring(1);
   console.log("Added Friend UID: "+uid);
   db.collection('users').doc(user.uid).update({
     friends: firebase.firestore.FieldValue.arrayUnion(uid)
+  });
+}
+
+function removeFriend() {
+  var addBtn = document.getElementById("addFriendButton");
+  var rmvBtn = document.getElementById("removeFriendButton");
+  addBtn.style.display = "block";
+  rmvBtn.style.display = "none";
+  var user = firebase.auth().currentUser;
+  var uid = location.search.substring(1);
+  console.log("Removed Friend UID: "+uid);
+  db.collection('users').doc(user.uid).update({
+    friends: firebase.firestore.FieldValue.arrayRemove(uid)
   });
 }
