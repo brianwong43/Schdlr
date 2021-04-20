@@ -88,8 +88,15 @@ a {
   display: block;
 }
 
+.listItemPhoto {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  margin-right: 10px;
+}
 
-/* DROPDOWN SHIT */
+
+/* DROPDOWN STUFF */
 
 /* Dropdown Button */
 .dropbtn {
