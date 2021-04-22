@@ -260,6 +260,7 @@ function login() {
 function signOut(){
   firebase.auth().signOut().then(() => {
     // Sign-out successful.
+    gapi.auth2.getAuthInstance().signOut();
     alert("Signed Out");
   }).catch((error) => {
     // An error happened.
