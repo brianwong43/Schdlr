@@ -8,6 +8,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">  
     <title>Scheduler</title>
+
+    <!-- CALENDAR STUFF -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js'></script>
+
+    <script>
+      //document.addEventListener('DOMContentLoaded', function() {
+        /* DEFAULT CALENDAR STYLE
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth'
+        });
+        calendar.render();*/
+
+        /*var calendarID;
+        var auth2 = gapi.auth2.getAuthInstance();
+        if (auth2.isSignedIn.get()) {
+          var profile = auth2.currentUser.get().getBasicProfile();
+          calendarID = profile.getEmail();
+        }
+        console.log(calendarID);*/
+        
+        /*let calendar = new FullCalendar.Calendar(calendarEl, {
+          googleCalendarApiKey: 'AIzaSyCtk-yPYtcMoxMn_7PasKZe3VtxDx4GckQ',
+          initialView: 'dayGridMonth',
+          events: {
+            googleCalendarId: calendarID
+          }
+        });*/
+      //});
+    </script>
   </head>
   <body>
 
@@ -104,16 +135,17 @@
         /**
          *  On load, called to load the auth2 library and API client library.
          */
-        function handleClientLoad() {
+        /*function handleClientLoad() {
           gapi.load('client:auth2', initClient);
         }
 
-        /**
+        var auth2;
+        **
          *  Initializes the API client library and sets up sign-in state
          *  listeners.
-         */
+         *
         function initClient() {
-          gapi.client.init({
+          auth2 = gapi.client.init({
             apiKey: API_KEY,
             clientId: CLIENT_ID,
             discoveryDocs: DISCOVERY_DOCS,
@@ -126,11 +158,41 @@
             updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
             authorizeButton.onclick = handleAuthClick;
             signoutButton.onclick = handleSignoutClick;
+
+            auth2.then(checkForLoggerInUser, onFailure);
           }, function(error) {
             appendPre(JSON.stringify(error, null, 2));
           });
+        }*/
+
+        var auth2;
+        var initClient = function() {
+          gapi.load('auth2', function(){
+            /**
+             * Retrieve the singleton for the GoogleAuth library and set up the
+             * client.
+             */
+            auth2 = gapi.auth2.init({
+              apiKey: API_KEY,
+              clientId: CLIENT_ID,
+              discoveryDocs: DISCOVERY_DOCS,
+              scope: SCOPES
+            });
+
+            // Called once auth2 has finished initializing
+            auth2.then(checkForLoggedInUser, onFailure);
+          });
+        };
+
+        function onFailure() {
+          console.log("UR A FAILURE, plz");
         }
 
+        function checkForLoggedInUser() {
+          var user = auth2.currentUser.get();
+          var profile = user.getBasicProfile();
+          console.log('Email: ' + profile.getEmail());
+        }
         /**
          *  Called when the signed in status changes, to update the UI
          *  appropriately. After a sign-in, the API is called.
@@ -207,10 +269,12 @@
       </script>
 
       <script async defer src="https://apis.google.com/js/api.js"
-        onload="this.onload=function(){};handleClientLoad()"
+        onload="this.onload=function(){};initClient()"
         onreadystatechange="if (this.readyState === 'complete') this.onload()">
       </script>
 
+      <!-- CALENDAR STARTS HERE -->
+      <div id='calendar'></div>
           
 
     </div>
