@@ -12,6 +12,43 @@ firebase.auth().onAuthStateChanged((user) => {
         window.location.replace("home.html");
       }
 
+      else if(window.location.pathname == "/home.html") {
+        //document.addEventListener('DOMContentLoaded', function() {
+          // Finds user object's calendar ID
+          var calendarID = "";
+          //var user = firebase.auth().currentUser;
+          console.log("Auth user: "+user);
+          db.collection('users').doc(user.uid).get().then((doc) => {
+            var userObject = doc.data();
+            calendarID = userObject.calendarID;
+            console.log("Calendar ID: "+calendarID);
+
+            var calendarEl = document.getElementById('calendar');
+            // If the user has a calendarID
+            //console.log("Calendar ID outside: "+calendarID);
+            var calendar;
+            if(calendarID) {
+              console.log("Not default calendar");
+              calendar = new FullCalendar.Calendar(calendarEl, {
+                googleCalendarApiKey: 'AIzaSyCtk-yPYtcMoxMn_7PasKZe3VtxDx4GckQ',
+                initialView: 'dayGridMonth',
+                events: {
+                  googleCalendarId: calendarID
+                }
+              });
+            } else {
+              console.log("Default calendar");
+              calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth'
+              });
+            }
+            calendar.render();
+            });
+          
+          
+        //});
+      }
+
       /* PROFILE.HTML */
       else if(window.location.pathname == "/profile.html") {
         // NAME
@@ -158,7 +195,7 @@ function createUser(username){
       
       db.collection("users").doc(user.uid)
       .withConverter(userConverter)
-      .set(new User(user.uid, username, [], "https://firebasestorage.googleapis.com/v0/b/schdlr-b3435.appspot.com/o/userPhotos%2FProfilePic.jpg?alt=media&token=894cb453-e99b-4663-8cf6-303e15d41269"))
+      .set(new User(user.uid, username, [], "https://firebasestorage.googleapis.com/v0/b/schdlr-b3435.appspot.com/o/userPhotos%2FProfilePic.jpg?alt=media&token=894cb453-e99b-4663-8cf6-303e15d41269", ""))
       .then(() => {
         console.log("Document successfully written!");
         addDisplayNameAndPhotoURL(username);

@@ -12,33 +12,6 @@
     <!-- CALENDAR STUFF -->
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.css' rel='stylesheet' />
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js'></script>
-
-    <script>
-      //document.addEventListener('DOMContentLoaded', function() {
-        /* DEFAULT CALENDAR STYLE
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth'
-        });
-        calendar.render();*/
-
-        /*var calendarID;
-        var auth2 = gapi.auth2.getAuthInstance();
-        if (auth2.isSignedIn.get()) {
-          var profile = auth2.currentUser.get().getBasicProfile();
-          calendarID = profile.getEmail();
-        }
-        console.log(calendarID);*/
-        
-        /*let calendar = new FullCalendar.Calendar(calendarEl, {
-          googleCalendarApiKey: 'AIzaSyCtk-yPYtcMoxMn_7PasKZe3VtxDx4GckQ',
-          initialView: 'dayGridMonth',
-          events: {
-            googleCalendarId: calendarID
-          }
-        });*/
-      //});
-    </script>
   </head>
   <body>
 
@@ -153,53 +126,41 @@
           }).then(function () {
             // Listen for sign-in state changes.
             gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-            console.log("right after listener for update");
 
             // Handle the initial sign-in state.
             updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
             authorizeButton.onclick = handleAuthClick;
             signoutButton.onclick = handleSignoutClick;
 
-            console.log("After onclick functions");
-            //auth2.then(checkForLoggedInUser, onFailure);
-            //console.log("After auth2.then");
           }, function(error) {
             appendPre(JSON.stringify(error, null, 2));
           });
         }
 
-/*        var auth2;
-        var initClient = function() {
-          gapi.load('auth2', function(){
-            /**
-             * Retrieve the singleton for the GoogleAuth library and set up the
-             * client.
-             *
-            auth2 = gapi.auth2.init({
-              apiKey: API_KEY,
-              clientId: CLIENT_ID,
-              discoveryDocs: DISCOVERY_DOCS,
-              scope: SCOPES
-            });
-              // Called once auth2 has finished initializing
-              auth2.then(checkForLoggedInUser, onFailure).then(function () {
-                gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-                updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-                authorizeButton.onclick = handleAuthClick;
-                signoutButton.onclick = handleSignoutClick;
-              });
-          });
-        };
-        */
-
         function onFailure() {
-          console.log("Failed to checkForLoggedInUser");
+          console.log("Failed to storeCalendarID");
         }
 
-        function checkForLoggedInUser() {
+        function storeCalendarID() {
           var user = gapi.auth2.getAuthInstance().currentUser.get();
           var profile = user.getBasicProfile();
+          var calendarID = profile.getEmail();
+
+          // Now add this to user object
+          var firebaseUser = firebase.auth().currentUser;
           console.log('Email: ' + profile.getEmail());
+          db.collection('users').doc(firebaseUser.uid).update({
+            calendarID: calendarID
+          });
+        }
+
+        function removeCalendarID() {
+          // Set calendarID to empty string
+          var firebaseUser = firebase.auth().currentUser;
+          console.log("removing calendar ID");
+          db.collection('users').doc(firebaseUser.uid).update({
+            calendarID: ""
+          });
         }
         /**
          *  Called when the signed in status changes, to update the UI
@@ -207,14 +168,16 @@
          */
         function updateSigninStatus(isSignedIn) {
           if (isSignedIn) {
-            auth2.then(checkForLoggedInUser, onFailure).then(function() { 
+            auth2.then(storeCalendarID, onFailure).then(function() { 
               authorizeButton.style.display = 'none';
               signoutButton.style.display = 'block';
               listUpcomingEvents();
             });
           } else {
-            authorizeButton.style.display = 'block';
-            signoutButton.style.display = 'none';
+            auth2.then(removeCalendarID, onFailure).then(function() { 
+              authorizeButton.style.display = 'block';
+              signoutButton.style.display = 'none';
+            });
           }
         }
 
