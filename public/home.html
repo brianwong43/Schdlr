@@ -135,15 +135,15 @@
         /**
          *  On load, called to load the auth2 library and API client library.
          */
-        /*function handleClientLoad() {
+        function handleClientLoad() {
           gapi.load('client:auth2', initClient);
         }
 
-        var auth2;
-        **
+        /**
          *  Initializes the API client library and sets up sign-in state
          *  listeners.
-         *
+         */
+        var auth2;
         function initClient() {
           auth2 = gapi.client.init({
             apiKey: API_KEY,
@@ -153,43 +153,51 @@
           }).then(function () {
             // Listen for sign-in state changes.
             gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+            console.log("right after listener for update");
 
             // Handle the initial sign-in state.
             updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
             authorizeButton.onclick = handleAuthClick;
             signoutButton.onclick = handleSignoutClick;
 
-            auth2.then(checkForLoggerInUser, onFailure);
+            console.log("After onclick functions");
+            //auth2.then(checkForLoggedInUser, onFailure);
+            //console.log("After auth2.then");
           }, function(error) {
             appendPre(JSON.stringify(error, null, 2));
           });
-        }*/
+        }
 
-        var auth2;
+/*        var auth2;
         var initClient = function() {
           gapi.load('auth2', function(){
             /**
              * Retrieve the singleton for the GoogleAuth library and set up the
              * client.
-             */
+             *
             auth2 = gapi.auth2.init({
               apiKey: API_KEY,
               clientId: CLIENT_ID,
               discoveryDocs: DISCOVERY_DOCS,
               scope: SCOPES
             });
-
-            // Called once auth2 has finished initializing
-            auth2.then(checkForLoggedInUser, onFailure);
+              // Called once auth2 has finished initializing
+              auth2.then(checkForLoggedInUser, onFailure).then(function () {
+                gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+                updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                authorizeButton.onclick = handleAuthClick;
+                signoutButton.onclick = handleSignoutClick;
+              });
           });
         };
+        */
 
         function onFailure() {
-          console.log("UR A FAILURE, plz");
+          console.log("Failed to checkForLoggedInUser");
         }
 
         function checkForLoggedInUser() {
-          var user = auth2.currentUser.get();
+          var user = gapi.auth2.getAuthInstance().currentUser.get();
           var profile = user.getBasicProfile();
           console.log('Email: ' + profile.getEmail());
         }
@@ -199,9 +207,11 @@
          */
         function updateSigninStatus(isSignedIn) {
           if (isSignedIn) {
-            authorizeButton.style.display = 'none';
-            signoutButton.style.display = 'block';
-            listUpcomingEvents();
+            auth2.then(checkForLoggedInUser, onFailure).then(function() { 
+              authorizeButton.style.display = 'none';
+              signoutButton.style.display = 'block';
+              listUpcomingEvents();
+            });
           } else {
             authorizeButton.style.display = 'block';
             signoutButton.style.display = 'none';
@@ -269,7 +279,7 @@
       </script>
 
       <script async defer src="https://apis.google.com/js/api.js"
-        onload="this.onload=function(){};initClient()"
+        onload="this.onload=function(){};handleClientLoad()"
         onreadystatechange="if (this.readyState === 'complete') this.onload()">
       </script>
 
