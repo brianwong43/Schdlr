@@ -104,11 +104,12 @@
 
         var authorizeButton = document.getElementById('authorize_button');
         var signoutButton = document.getElementById('signout_button');
-
+        var firebaseUser;
         /**
          *  On load, called to load the auth2 library and API client library.
          */
         function handleClientLoad() {
+          firebaseUser = firebase.auth().currentUser;
           gapi.load('client:auth2', initClient);
         }
 
@@ -141,7 +142,7 @@
           console.log("Failed to storeCalendarID");
         }
 
-        function storeCalendarID(firebaseUser) {
+        function storeCalendarID() {
           var user = gapi.auth2.getAuthInstance().currentUser.get();
           var profile = user.getBasicProfile();
           var calendarID = profile.getEmail();
@@ -154,7 +155,7 @@
           return calendarID;
         }
 
-        function removeCalendarID(firebaseUser) {
+        function removeCalendarID() {
           // Set calendarID to empty string
           console.log("removing calendar ID");
           db.collection('users').doc(firebaseUser.uid).update({
@@ -166,11 +167,10 @@
          *  appropriately. After a sign-in, the API is called.
          */
         function updateSigninStatus(isSignedIn) {
-          var firebaseUser = firebase.auth().currentUser;
           var calendarEl = document.getElementById('calendar');
           var calendarID, calendar;
           if (isSignedIn) {
-            auth2.then(calendarID = storeCalendarID(firebaseUser), onFailure).then(function() { 
+            auth2.then(calendarID = storeCalendarID, onFailure).then(function() { 
               console.log("Calendar ID: " + calendarID);
               authorizeButton.style.display = 'none';
               signoutButton.style.display = 'block';
@@ -193,7 +193,6 @@
               calendar.render();
             });
           } else {
-            auth2.then(removeCalendarID(firebaseUser), onFailure).then(function() { 
               authorizeButton.style.display = 'block';
               signoutButton.style.display = 'none';
 
@@ -208,7 +207,7 @@
                 initialView: 'dayGridMonth'
               });
               calendar.render();
-            });
+              auth2.then(removeCalendarID, onFailure);
           }
         }
 
