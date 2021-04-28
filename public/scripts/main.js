@@ -12,43 +12,6 @@ firebase.auth().onAuthStateChanged((user) => {
         window.location.replace("home.html");
       }
 
-      else if(window.location.pathname == "/home.html") {
-        //document.addEventListener('DOMContentLoaded', function() {
-          // Finds user object's calendar ID
-          var calendarID = "";
-          //var user = firebase.auth().currentUser;
-          console.log("Auth user: "+user);
-          db.collection('users').doc(user.uid).get().then((doc) => {
-            var userObject = doc.data();
-            calendarID = userObject.calendarID;
-            console.log("Calendar ID: "+calendarID);
-
-            var calendarEl = document.getElementById('calendar');
-            // If the user has a calendarID
-            //console.log("Calendar ID outside: "+calendarID);
-            var calendar;
-            if(calendarID) {
-              console.log("Not default calendar");
-              calendar = new FullCalendar.Calendar(calendarEl, {
-                googleCalendarApiKey: 'AIzaSyCtk-yPYtcMoxMn_7PasKZe3VtxDx4GckQ',
-                initialView: 'dayGridMonth',
-                events: {
-                  googleCalendarId: calendarID
-                }
-              });
-            } else {
-              console.log("Default calendar");
-              calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth'
-              });
-            }
-            calendar.render();
-            });
-          
-          
-        //});
-      }
-
       /* PROFILE.HTML */
       else if(window.location.pathname == "/profile.html") {
         // NAME
@@ -128,8 +91,31 @@ firebase.auth().onAuthStateChanged((user) => {
           }
         });
       } 
+
+    /* USER NOT LOGGED IN */
     } else {
       console.log("User logged out");
+
+      if(window.location.pathname == "/login.html") {
+        let loginemail = document.getElementById('loginuseremail');
+        let loginpassword = document.getElementById('loginpassword');
+        let rmCheck = document.getElementById('loginrememberme');
+
+        console.log("cache username:"+localStorage.username);
+        console.log("cache password:"+localStorage.password);
+    
+        if (localStorage.checkbox && localStorage.checkbox !== "") {
+          console.log("checkbox been checked");
+          rmCheck.setAttribute("checked", "checked");
+          loginemail.value = localStorage.username;
+          loginpassword.value = localStorage.password;
+        } else {
+          console.log("checkbox not checked");
+          rmCheck.removeAttribute("checked");
+          loginemail.value = "";
+          loginpassword.value = "";
+        }
+      }
     }
 });
 
@@ -276,8 +262,31 @@ function updateUserObject(uid, profileName, url) {
 function login() {
     let loginemail = document.getElementById('loginuseremail').value;
     let loginpassword = document.getElementById('loginpassword').value;
+    let rmCheck = document.getElementById('loginrememberme');
     console.log(loginemail);
     console.log(loginpassword);
+
+    /*if (localStorage.checkbox && localStorage.checkbox !== "") {
+      rmCheck.setAttribute("checked", "checked");
+      loginemail = localStorage.username;
+      loginpassword = localStorage.password;
+    } else {
+      rmCheck.removeAttribute("checked");
+      loginemail = "";
+      loginpassword = "";
+    }*/
+
+    if (rmCheck.checked && loginemail !== "" && loginpassword !== "") {
+      console.log("setting local storage...");
+      localStorage.username = loginemail;
+      localStorage.password = loginpassword;
+      localStorage.checkbox = rmCheck.value;
+    } else {
+      console.log("local storage not stored");
+      localStorage.username = "";
+      localStorage.password = "";
+      localStorage.checkbox = "";
+    }
     // [START auth_signin_password]
     firebase.auth().signInWithEmailAndPassword(loginemail, loginpassword)
       .then((userCredential) => {

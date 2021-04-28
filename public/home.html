@@ -141,22 +141,21 @@
           console.log("Failed to storeCalendarID");
         }
 
-        function storeCalendarID() {
+        function storeCalendarID(firebaseUser) {
           var user = gapi.auth2.getAuthInstance().currentUser.get();
           var profile = user.getBasicProfile();
           var calendarID = profile.getEmail();
 
           // Now add this to user object
-          var firebaseUser = firebase.auth().currentUser;
           console.log('Email: ' + profile.getEmail());
           db.collection('users').doc(firebaseUser.uid).update({
             calendarID: calendarID
           });
+          return calendarID;
         }
 
-        function removeCalendarID() {
+        function removeCalendarID(firebaseUser) {
           // Set calendarID to empty string
-          var firebaseUser = firebase.auth().currentUser;
           console.log("removing calendar ID");
           db.collection('users').doc(firebaseUser.uid).update({
             calendarID: ""
@@ -167,16 +166,48 @@
          *  appropriately. After a sign-in, the API is called.
          */
         function updateSigninStatus(isSignedIn) {
+          var firebaseUser = firebase.auth().currentUser;
+          var calendarEl = document.getElementById('calendar');
+          var calendarID, calendar;
           if (isSignedIn) {
-            auth2.then(storeCalendarID, onFailure).then(function() { 
+            auth2.then(calendarID = storeCalendarID(firebaseUser), onFailure).then(function() { 
+              console.log("Calendar ID: " + calendarID);
               authorizeButton.style.display = 'none';
               signoutButton.style.display = 'block';
+
+              //Create a calendar with users events
+              console.log("User calendar");
+              calendar = new FullCalendar.Calendar(calendarEl, {
+                headerToolbar: { 
+                  start: 'today prev,next',
+                  center: 'title',
+                  end: 'dayGridMonth,timeGridWeek' 
+                },
+                googleCalendarApiKey: 'AIzaSyCtk-yPYtcMoxMn_7PasKZe3VtxDx4GckQ',
+                initialView: 'dayGridMonth',
+                events: {
+                  googleCalendarId: calendarID
+                }
+              });
               listUpcomingEvents();
+              calendar.render();
             });
           } else {
-            auth2.then(removeCalendarID, onFailure).then(function() { 
+            auth2.then(removeCalendarID(firebaseUser), onFailure).then(function() { 
               authorizeButton.style.display = 'block';
               signoutButton.style.display = 'none';
+
+              // Default calendar
+              console.log("Default calendar");
+              calendar = new FullCalendar.Calendar(calendarEl, {
+                headerToolbar: { 
+                  start: 'today prev,next',
+                  center: 'title',
+                  end: 'dayGridMonth,timeGridWeek' 
+                },
+                initialView: 'dayGridMonth'
+              });
+              calendar.render();
             });
           }
         }
