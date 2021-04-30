@@ -8,7 +8,7 @@ firebase.auth().onAuthStateChanged((user) => {
       console.log("PATH: " + window.location.pathname);
 
       /* INDEX HTML */
-      if(window.location.pathname == "/index.html") {
+      if(window.location.pathname == "/index.html" || window.location.pathname == "/") {
         window.location.replace("home.html");
       }
 

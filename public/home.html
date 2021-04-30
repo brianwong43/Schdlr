@@ -77,19 +77,26 @@
 
     <!-- Content -->
     <div class="content">
-      <button type="button" class="btn btn-primary btn-lg" id="create">
-        <a href="#" style="color:white;">Create Event</a>
-      </button>
-      <hr>
+      <div id="createEventSection" style="display: none;">
+        <button type="button" class="btn btn-primary btn-lg" id="create">
+          <a href="#" style="color:white;">Create Event</a>
+        </button>
+        <hr>
+      </div>
 
-      <!-- CALENDAR API BEGINS HERE -->
+      <!--Add button to initiate auth sequence -->
+      <button id="authorize_button" class="btn btn-primary btn-lg" style="display: none; margin-bottom: 20px;">Authorize</button>
 
-      <!--Add buttons to initiate auth sequence and sign out-->
-      <button id="authorize_button" style="display: none;">Authorize</button>
-      <button id="signout_button" style="display: none;">Sign Out</button>
+      <!-- CALENDAR STARTS HERE -->
+      <div id='calendar'></div>
 
-      <!--pre id="content" style="white-space: pre-wrap;"></pre-->
+      <!--Add button to initiate signout -->
+      <button id="signout_button" class="btn" style="display: none; margin-bottom: 90px; margin-top: 20px; float: right;">Sign Out</button>
 
+
+
+
+      <!-- SCRIPT FOR CALENDAR HERE -->
       <script type="text/javascript">
         // Client ID and API key from the Developer Console
         var CLIENT_ID = '787536569268-hbrvrsqbkq9cs1dvs38n0mdr4usq2qsm.apps.googleusercontent.com';
@@ -104,6 +111,7 @@
 
         var authorizeButton = document.getElementById('authorize_button');
         var signoutButton = document.getElementById('signout_button');
+        var createEventSection = document.getElementById('createEventSection');
         /**
          *  On load, called to load the auth2 library and API client library.
          */
@@ -173,6 +181,7 @@
               console.log("Calendar ID: " + calendarID);
               authorizeButton.style.display = 'none';
               signoutButton.style.display = 'block';
+              createEventSection.style.display = 'block';
 
               //Create a calendar with users events
               console.log("User calendar");
@@ -195,8 +204,9 @@
               // include text here
               authorizeButton.style.display = 'block';
               signoutButton.style.display = 'none';
+              createEventSection.style.display = 'none';
 
-              /* Default calendar
+              // Default calendar
               console.log("Default calendar");
               calendar = new FullCalendar.Calendar(calendarEl, {
                 headerToolbar: { 
@@ -206,7 +216,7 @@
                 },
                 initialView: 'dayGridMonth'
               });
-              calendar.render();*/
+              calendar.render();
               auth2.then(removeCalendarID(firebaseUser), onFailure);
           }
         }
@@ -275,9 +285,6 @@
         onload="this.onload=function(){};handleClientLoad()"
         onreadystatechange="if (this.readyState === 'complete') this.onload()">
       </script>
-
-      <!-- CALENDAR STARTS HERE -->
-      <div id='calendar'></div>
           
 
     </div>
