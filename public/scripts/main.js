@@ -1,5 +1,7 @@
 // Asynchronus locks
+var searchUsersSemaphore = 0; 
 var searchFriendsSemaphore = 0; 
+var eventFriendsList = [];
 
 firebase.auth().onAuthStateChanged((user) => {
     if(user) {
@@ -122,11 +124,11 @@ firebase.auth().onAuthStateChanged((user) => {
 /*
  * Used by PROFILE.HTML and OTHERUSERPROFILE.HTML in Auth Change
  */
-function appendNames(nameList, appendId) {
+function appendNames(uidList, appendId) {
   var user = firebase.auth().currentUser;
-  console.log("Name List: "+nameList);
-  for(var i=0; i<nameList.length; i=i+1) {
-    db.collection('users').doc(nameList[i]).get().then((doc) => {
+  console.log("Name List: "+uidList);
+  for(var i=0; i<uidList.length; i=i+1) {
+    db.collection('users').doc(uidList[i]).get().then((doc) => {
       var userObject = doc.data();
       var friend = document.createElement("LI");
       friend.setAttribute("class", "list-group-item");
@@ -266,16 +268,6 @@ function login() {
     console.log(loginemail);
     console.log(loginpassword);
 
-    /*if (localStorage.checkbox && localStorage.checkbox !== "") {
-      rmCheck.setAttribute("checked", "checked");
-      loginemail = localStorage.username;
-      loginpassword = localStorage.password;
-    } else {
-      rmCheck.removeAttribute("checked");
-      loginemail = "";
-      loginpassword = "";
-    }*/
-
     if (rmCheck.checked && loginemail !== "" && loginpassword !== "") {
       console.log("setting local storage...");
       localStorage.username = loginemail;
@@ -328,17 +320,82 @@ function displayPhoto() {
   }
 }
 
-/* When the user clicks on the button,
-toggle between hiding and showing the dropdown content */
+/* 
+ * When the user clicks on the button,
+ * toggle between hiding and showing the dropdown content 
+ */
 function searchDropdown() {
   document.getElementById("myDropdown").classList.toggle("show");
-  document.getElementById("myInput").oninput = searchForFriends;
+  document.getElementById("myInput").oninput = searchForEveryone;
 }
 
+function clearGlobalList() {
+  eventFriendsList = [];
+}
+
+function textBoxDropdown() {
+  document.getElementById("textBoxInput").oninput = searchForFriends;
+}
+
+/*
+ * Appends every friends name and photo to the search bar in the modal
+ */
 function searchForFriends() {
   if(searchFriendsSemaphore == 0) {
     searchFriendsSemaphore = 1;
     console.log("SEARCH FOR FRIENDS");
+    var input = document.getElementById("textBoxInput").value.toUpperCase();
+    var div = document.getElementById("friendList");
+    while (div.firstChild) {//clears dropdown list
+      div.removeChild(div.firstChild);
+    }
+    var user = firebase.auth().currentUser;
+    // Search through all users with overlap
+    db.collection('users').doc(user.uid).get().then((doc) => {
+      if(doc.exists){
+        console.log("Document data:", doc.data());
+        var userObject = doc.data();
+        var friendList = userObject.friends;
+        if(friendList.length > 0) {
+
+          for(var i=0; i<friendList.length; i=i+1) {
+            db.collection('users').doc(friendList[i]).get().then((doc) => {
+              var userObject = doc.data();
+              if(userObject.displayName.startsWith(input) && input!=="") {
+                console.log("Listing: "+userObject.displayName);
+                var friend = document.createElement("LI");
+                friend.setAttribute("class", "list-group-item");
+                friend.innerHTML = "<a onclick='addFriendToEvent("+userObject.uid+")'><img class='listItemPhoto' src='"+userObject.photoURL+"'>"+userObject.displayName+"</a>";
+                
+                div.appendChild(friend);
+              }
+            });
+          }
+        }
+      } else { console.log("uh-oh"); }
+    });
+    searchFriendsSemaphore = 0;
+  }
+}
+
+function addFriendToEvent(friendUid) {
+  console.log("pushing to global variable: "+friendUid);
+  eventFriendsList.push(friendUid);
+  var friend = document.getElementById("friendsInEvents");
+  db.collection('users').doc(friendUid).get().then((doc) => {
+    var userObject = doc.data();
+    console.log("displaying friend: "+ userObject.displayName);
+    friend.innerHTML = userObject.displayName;
+  });
+}
+
+/*
+ * Appends every users name and photo to the search dropdown in the nav bar 
+ */
+function searchForEveryone() {
+  if(searchUsersSemaphore == 0) {
+    searchUsersSemaphore = 1;
+    console.log("SEARCH FOR EVERYONE");
     var input = document.getElementById("myInput").value.toUpperCase();
     var div = document.getElementById("peopleList");
     while (div.firstChild) {//clears dropdown list
@@ -363,7 +420,7 @@ function searchForFriends() {
               counter++;
             }
         });
-        searchFriendsSemaphore = 0;
+        searchUsersSemaphore = 0;
     })
     .catch((error) => {
         console.log("Error getting documents: ", error);

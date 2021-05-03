@@ -91,7 +91,7 @@
     <!-- Content -->
     <div class="content">
       <div id="createEventSection" style="display: none;">
-        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+        <button type="button" onclick="clearGlobalList()" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
           Create Event
         </button>
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -107,12 +107,17 @@
                 <form>
                   <div class="form-group">
                     <label for="eventName">Event Name:</label>
-                    <input type="text" class="form-control" id="eventName" aria-describedby="emailHelp" placeholder="Title">
+                    <input type="text" class="form-control" id="eventName" placeholder="Title">
                   </div>
                   <div class="form-group">
                     <label for="username">Event Duration (hours):</label>
                     <input type="number" class="form-control" id="duration">
                     <small id="smallname" class="form-text text-muted">How long will this event last (in hours)</small>
+                  </div>
+                  <div class="giveBorder" id="friendsInEvents"></div>
+                  <div class="form-group">
+                    <input type="text" onclick="textBoxDropdown()" placeholder="Search for friends..." id="textBoxInput">
+                    <ul class="list-group" id="friendList"></ul>
                   </div>
                 </form>
               </div>
