@@ -95,6 +95,11 @@ a {
   margin-right: 10px;
 }
 
+.giveBorder {
+  border-style: groove;
+  margin: 15px;
+}
+
 
 /* DROPDOWN STUFF */
 
