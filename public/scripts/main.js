@@ -354,18 +354,24 @@ function searchForFriends() {
     db.collection('users').doc(user.uid).get().then((doc) => {
       if(doc.exists){
         console.log("Document data:", doc.data());
-        var userObject = doc.data();
-        var friendList = userObject.friends;
+        var currUser = doc.data();
+        var friendList = currUser.friends;
         if(friendList.length > 0) {
 
           for(var i=0; i<friendList.length; i=i+1) {
             db.collection('users').doc(friendList[i]).get().then((doc) => {
               var userObject = doc.data();
-              if(userObject.displayName.startsWith(input) && input!=="") {
+              if(userObject.displayName.toUpperCase().startsWith(input) && input!=="" && !eventFriendsList.includes(userObject.uid)) {
                 console.log("Listing: "+userObject.displayName);
                 var friend = document.createElement("LI");
                 friend.setAttribute("class", "list-group-item");
-                friend.innerHTML = "<a onclick='addFriendToEvent("+userObject.uid+")'><img class='listItemPhoto' src='"+userObject.photoURL+"'>"+userObject.displayName+"</a>";
+                friend.innerHTML = "<a><img class='listItemPhoto' src='"+userObject.photoURL+"'>"+userObject.displayName+"</a>";
+                friend.onclick = function() {
+                  console.log("pushing to global variable: "+userObject.uid);
+                  eventFriendsList.push(userObject.uid);
+                  div.removeChild(friend);
+                  createEventFriendsList();
+                };
                 
                 div.appendChild(friend);
               }
@@ -378,17 +384,42 @@ function searchForFriends() {
   }
 }
 
-function addFriendToEvent(friendUid) {
-  console.log("pushing to global variable: "+friendUid);
-  eventFriendsList.push(friendUid);
-  var friend = document.getElementById("friendsInEvents");
-  db.collection('users').doc(friendUid).get().then((doc) => {
-    var userObject = doc.data();
-    console.log("displaying friend: "+ userObject.displayName);
-    friend.innerHTML = userObject.displayName;
-  });
+function createEventFriendsList() {
+  var friendsInEvents = document.getElementById("friendsInEvents");
+  while (friendsInEvents.firstChild) {//clears list
+    friendsInEvents.removeChild(friendsInEvents.firstChild);
+  }
+  // for all friends in global variable
+  for(const friendUid of eventFriendsList) {
+    console.log("Adding friend with uid: "+friendUid);
+    db.collection('users').doc(friendUid).get().then((doc) => {
+      var friendObject = doc.data();
+      var friendElement = document.createElement("STRONG");
+      friendElement.innerHTML = friendObject.displayName;
+      friendsInEvents.appendChild(friendElement);
+      // close button with onclick
+      var closeButton = document.createElement("BUTTON");
+      closeButton.setAttribute("style", "color: grey; border-radius: 100%; border-style: none; margin-left: 5px; margin-right: 10px;");
+      closeButton.innerHTML = "X";
+
+      closeButton.onclick = function() {
+        console.log("Remove friend form event");
+        // Remove from global array by finding index
+        var i = eventFriendsList.indexOf(friendObject.uid);
+        if(i > -1) {
+          eventFriendsList.splice(i, 1);
+        }
+        friendsInEvents.removeChild(friendElement);
+        friendsInEvents.removeChild(closeButton);
+      };
+      friendsInEvents.appendChild(closeButton);
+    });
+  }
 }
 
+function test() {
+  console.log("Made it here");
+}
 /*
  * Appends every users name and photo to the search dropdown in the nav bar 
  */
