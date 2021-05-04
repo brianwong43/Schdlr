@@ -98,6 +98,7 @@ a {
 .giveBorder {
   border-style: groove;
   margin: 15px;
+  min-height: 20px;
 }
 
 

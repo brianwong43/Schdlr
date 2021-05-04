@@ -77,17 +77,6 @@
       </div>
     </nav>
 
-    <!--script>
-      $(function(){
-        $('#myModal').modal({
-          show:true,
-          backdrop:'static'
-        });
-        //now on button click
-          $('#myModal').modal('show');
-      });
-    </script-->
-
     <!-- Content -->
     <div class="content">
       <div id="createEventSection" style="display: none;">
@@ -114,7 +103,7 @@
                     <input type="number" class="form-control" id="duration">
                     <small id="smallname" class="form-text text-muted">How long will this event last (in hours)</small>
                   </div>
-                  <div class="giveBorder" id="friendsInEvents"></div>
+                  <p class="giveBorder" id="friendsInEvents"></p>
                   <div class="form-group">
                     <input type="text" onclick="textBoxDropdown()" placeholder="Search for friends..." id="textBoxInput">
                     <ul class="list-group" id="friendList"></ul>
