@@ -99,8 +99,8 @@
                     <input type="text" class="form-control" id="eventName" placeholder="Title">
                   </div>
                   <div class="form-group">
-                    <label for="username">Event Duration (hours):</label>
-                    <input type="number" class="form-control" id="duration">
+                    <label for="dateTime">Start Time:</label>
+                    <input type="datetime-local" class="form-control" id="dateTime">
                     <small id="smallname" class="form-text text-muted">How long will this event last (in hours)</small>
                   </div>
                   <p class="giveBorder" id="friendsInEvents"></p>
@@ -112,7 +112,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Create</button>
+                <button type="button" class="btn btn-primary" onclick="createSchedulerEvent()">Create</button>
               </div>
             </div>
           </div>
@@ -135,15 +135,15 @@
       <!-- SCRIPT FOR CALENDAR HERE -->
       <script type="text/javascript">
         // Client ID and API key from the Developer Console
-        var CLIENT_ID = '787536569268-hbrvrsqbkq9cs1dvs38n0mdr4usq2qsm.apps.googleusercontent.com';
-        var API_KEY = 'AIzaSyCtk-yPYtcMoxMn_7PasKZe3VtxDx4GckQ';
+        var CLIENT_ID = '787536569268-elefuvio2stdcvvn58aociq5ijb84t6t.apps.googleusercontent.com';
+        var API_KEY = 'AIzaSyD2Zb5nwUvQBE9s6N2csEuXRd7kSxRQbgM';
 
         // Array of API discovery doc URLs for APIs used by the quickstart
         var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
 
         // Authorization scopes required by the API; multiple scopes can be
         // included, separated by spaces.
-        var SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+        var SCOPES = "https://www.googleapis.com/auth/calendar";
 
         var authorizeButton = document.getElementById('authorize_button');
         var signoutButton = document.getElementById('signout_button');
