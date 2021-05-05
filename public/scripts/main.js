@@ -484,3 +484,32 @@ function removeFriend() {
     friends: firebase.firestore.FieldValue.arrayRemove(uid)
   });
 }
+
+function createSchedulerEvent() {
+  //console.log("Calendar List.get: "+ gapi.client.calendar.calendarList.get('jtsuch1122@gmail.com'));
+  
+  var eventName = document.getElementById("eventName").value;
+  var dateTime = document.getElementById("dateTime").value;
+
+  var event = {
+    'summary': eventName,
+    'start': {
+      'dateTime': dateTime,
+      'timeZone': 'America/Los_Angeles'
+    },
+    'end': {
+      'dateTime': '2021-05-08T17:00:00-07:00',
+      'timeZone': 'America/Los_Angeles'
+    }
+  };
+
+  var request = gapi.client.calendar.events.insert({
+    'calendarId': 'jtsuch1122@gmail.com',
+    'resource': event
+  });
+  
+  request.execute(function(event) {
+    //appendPre('Event created: ' + event.htmlLink);
+    console.log('Event created: ' + event.htmlLink);
+  });
+}
