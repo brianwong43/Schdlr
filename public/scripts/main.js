@@ -1,7 +1,8 @@
 // Asynchronus locks
 var searchUsersSemaphore = 0; 
 var searchFriendsSemaphore = 0; 
-var eventFriendsList = [];
+var eventFriendsEmailsList = []; //{'email': 'email@gmail.com'}
+var eventFriendsUidList = [];
 
 firebase.auth().onAuthStateChanged((user) => {
     if(user) {
@@ -367,12 +368,13 @@ function searchForFriends() {
                 friend.setAttribute("class", "list-group-item");
                 friend.innerHTML = "<a><img class='listItemPhoto' src='"+userObject.photoURL+"'>"+userObject.displayName+"</a>";
                 friend.onclick = function() {
+                  console.log("pushing to global variable: "+userObject.calendarID);
+                  eventFriendsEmailsList.push(userObject.calendarID);
                   console.log("pushing to global variable: "+userObject.uid);
-                  eventFriendsList.push(userObject.uid);
+                  eventFriendsUidList.push(userObject.uid);
                   div.removeChild(friend);
                   createEventFriendsList();
                 };
-                
                 div.appendChild(friend);
               }
             });
@@ -390,7 +392,7 @@ function createEventFriendsList() {
     friendsInEvents.removeChild(friendsInEvents.firstChild);
   }
   // for all friends in global variable
-  for(const friendUid of eventFriendsList) {
+  for(const friendUid of eventFriendsUidList) {
     console.log("Adding friend with uid: "+friendUid);
     db.collection('users').doc(friendUid).get().then((doc) => {
       var friendObject = doc.data();
@@ -403,12 +405,18 @@ function createEventFriendsList() {
       closeButton.innerHTML = "X";
 
       closeButton.onclick = function() {
-        console.log("Remove friend form event");
-        // Remove from global array by finding index
-        var i = eventFriendsList.indexOf(friendObject.uid);
+        console.log("Remove friend from event: "+friendObject);
+        // Remove from global arrays by finding index
+        var i = eventFriendsUidList.indexOf(friendObject.uid);
         if(i > -1) {
-          eventFriendsList.splice(i, 1);
+          eventFriendsUidList.splice(i, 1);
         }
+
+        var j = eventFriendsEmailsList.indexOf(friendObject.calendarID);
+        if(j > -1) {
+          eventFriendsEmailsList.splice(j, 1);
+        }
+
         friendsInEvents.removeChild(friendElement);
         friendsInEvents.removeChild(closeButton);
       };
@@ -417,9 +425,6 @@ function createEventFriendsList() {
   }
 }
 
-function test() {
-  console.log("Made it here");
-}
 /*
  * Appends every users name and photo to the search dropdown in the nav bar 
  */
@@ -486,14 +491,15 @@ function removeFriend() {
 }
 
 function createSchedulerEvent() {
-  //console.log("Calendar List.get: "+ gapi.client.calendar.calendarList.get('jtsuch1122@gmail.com'));
-  
-  var eventName = document.getElementById("eventName").value;
+  var eventName     = document.getElementById("eventName").value;
   var startdateTime = document.getElementById("startdateTime").value;
-  console.log("startdatetime: "+startdateTime+':00-07:00');
-  var enddateTime = document.getElementById("enddateTime").value;
-  console.log("enddatetime: "+enddateTime+":00-07:00");
+  var enddateTime   = document.getElementById("enddateTime").value;
   var eventDescription = document.getElementById("eventDescription").value;
+
+  console.log("Event friends emails list: "+eventFriendsEmailsList);
+  console.log("startdatetime: "+startdateTime+':00-07:00');
+  console.log("enddatetime: "+enddateTime+":00-07:00");
+
   var event = {
     'summary': eventName,
     'location': '800 Howard St., San Francisco, CA 94103',
@@ -506,13 +512,11 @@ function createSchedulerEvent() {
       'dateTime': enddateTime+=":00-07:00",
       'timeZone': 'America/Los_Angeles'
     },
+    /*
     'recurrence': [
-      'RRULE:FREQ=DAILY;COUNT=2'
-    ],
-    'attendees': [
-      {'email': 'lpage@example.com'},
-      {'email': 'sbrin@example.com'}
-    ],
+      'RRULE:FREQ=DAILY;COUNT=1'
+    ],*/
+    'attendees': [],
     'reminders': {
       'useDefault': false,
       'overrides': [
@@ -522,6 +526,10 @@ function createSchedulerEvent() {
     }
   };
 
+  for(var i=0; i<eventFriendsEmailsList.length; i++){
+    event.attendees.push({email: eventFriendsEmailsList[i]});
+  }
+
   var request = gapi.client.calendar.events.insert({
     'calendarId': 'primary',
     'resource': event
@@ -529,5 +537,6 @@ function createSchedulerEvent() {
   
   request.execute(function(event) {
     appendPre('Event created: ' + event.htmlLink);
+    alert("Event Created");
   });
 }
