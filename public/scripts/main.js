@@ -489,27 +489,45 @@ function createSchedulerEvent() {
   //console.log("Calendar List.get: "+ gapi.client.calendar.calendarList.get('jtsuch1122@gmail.com'));
   
   var eventName = document.getElementById("eventName").value;
-  var dateTime = document.getElementById("dateTime").value;
-
+  var startdateTime = document.getElementById("startdateTime").value;
+  console.log("startdatetime: "+startdateTime+':00-07:00');
+  var enddateTime = document.getElementById("enddateTime").value;
+  console.log("enddatetime: "+enddateTime+":00-07:00");
+  var eventDescription = document.getElementById("eventDescription").value;
   var event = {
     'summary': eventName,
+    'location': '800 Howard St., San Francisco, CA 94103',
+    'description': eventDescription,
     'start': {
-      'dateTime': dateTime,
+      'dateTime': startdateTime+=":00-07:00", 
       'timeZone': 'America/Los_Angeles'
     },
     'end': {
-      'dateTime': '2021-05-08T17:00:00-07:00',
+      'dateTime': enddateTime+=":00-07:00",
       'timeZone': 'America/Los_Angeles'
+    },
+    'recurrence': [
+      'RRULE:FREQ=DAILY;COUNT=2'
+    ],
+    'attendees': [
+      {'email': 'lpage@example.com'},
+      {'email': 'sbrin@example.com'}
+    ],
+    'reminders': {
+      'useDefault': false,
+      'overrides': [
+        {'method': 'email', 'minutes': 24 * 60},
+        {'method': 'popup', 'minutes': 10}
+      ]
     }
   };
 
   var request = gapi.client.calendar.events.insert({
-    'calendarId': 'jtsuch1122@gmail.com',
+    'calendarId': 'primary',
     'resource': event
   });
   
   request.execute(function(event) {
-    //appendPre('Event created: ' + event.htmlLink);
-    console.log('Event created: ' + event.htmlLink);
+    appendPre('Event created: ' + event.htmlLink);
   });
 }
