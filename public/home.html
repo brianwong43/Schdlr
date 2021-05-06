@@ -92,37 +92,37 @@
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              <div class="modal-body">
-                <form>
-                  <div class="form-group">
-                    <label for="eventName">Event Name:</label>
-                    <input type="text" class="form-control" id="eventName" placeholder="Title">
-                  </div>
-                  <div class="form-group">
-                    <label for="startdateTime">Start Time:</label>
-                    <input type="datetime-local" class="form-control" id="startdateTime">
-                    <!--<small id="smallname" class="form-text text-muted">How long will this event last (in hours)</small>-->
-                  </div>
-                  <div class="form-group">
-                    <label for="enddateTime">End Time:</label>
-                    <input type="datetime-local" class="form-control" id="enddateTime">
-                    <!--<small id="smallname" class="form-text text-muted">How long will this event last (in hours)</small>-->
-                  </div>
-                  <div class="form-group">
-                    <label for="description">Event Description:</label>
-                    <input type="text" class="form-control" id="eventDescription" placeholder="Title">
-                  </div>
-                  <p class="giveBorder" id="friendsInEvents"></p>
-                  <div class="form-group">
-                    <input type="text" onclick="textBoxDropdown()" placeholder="Search for friends..." id="textBoxInput">
-                    <ul class="list-group" id="friendList"></ul>
-                  </div>
-                </form>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="createSchedulerEvent()">Create</button>
-              </div>
+              <form>
+                <div class="modal-body">
+                    <div class="form-group">
+                      <label for="eventName">Event Name:</label>
+                      <input type="text" class="form-control" id="eventName" placeholder="Title" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="startdateTime">Start Time:</label>
+                      <input type="datetime-local" class="form-control" id="startdateTime" required>
+                      <!--<small id="smallname" class="form-text text-muted">How long will this event last (in hours)</small>-->
+                    </div>
+                    <div class="form-group">
+                      <label for="enddateTime">End Time:</label>
+                      <input type="datetime-local" class="form-control" id="enddateTime" required>
+                      <!--<small id="smallname" class="form-text text-muted">How long will this event last (in hours)</small>-->
+                    </div>
+                    <div class="form-group">
+                      <label for="description">Event Description:</label>
+                      <input type="text" class="form-control" id="eventDescription" placeholder="Title">
+                    </div>
+                    <p class="giveBorder" id="friendsInEvents"></p>
+                    <div class="form-group">
+                      <input type="text" onclick="textBoxDropdown()" placeholder="Search for friends..." id="textBoxInput">
+                      <ul class="list-group" id="friendList"></ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <button type="submit" class="btn btn-primary" data-dismiss="modal" onclick="createSchedulerEvent()">Create</button>
+                </div> 
+            </form>
             </div>
           </div>
         </div>
