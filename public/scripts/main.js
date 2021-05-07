@@ -15,6 +15,58 @@ firebase.auth().onAuthStateChanged((user) => {
         window.location.replace("home.html");
       }
 
+      else if(window.location.pathname == "/home.html") {
+        var calendarEl = document.getElementById('calendar');
+        var authorizeButton = document.getElementById('authorize_button');
+        var signoutButton = document.getElementById('signout_button');
+        var createEventSection = document.getElementById('createEventSection');
+        var calendarID, calendar;
+        if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+          auth2.then(calendarID = storeCalendarID(user), onFailure).then(function() { 
+            console.log("Calendar ID: " + calendarID);
+            authorizeButton.style.display = 'none';
+            signoutButton.style.display = 'block';
+            createEventSection.style.display = 'block';
+
+            //Create a calendar with users events
+            console.log("User calendar");
+            calendar = new FullCalendar.Calendar(calendarEl, {
+              headerToolbar: { 
+                start: 'today prev,next',
+                center: 'title',
+                end: 'dayGridMonth,timeGridWeek' 
+              },
+              googleCalendarApiKey: 'AIzaSyC1rvN3zf0_W9Vz_oq-TTFY6-g5-XyyXOY',
+              initialView: 'dayGridMonth',
+              events: {
+                googleCalendarId: calendarID
+              }
+            });
+            //listUpcomingEvents();
+            calendar.render();
+          });
+        } else {
+            // include text here
+            authorizeButton.style.display = 'block';
+            signoutButton.style.display = 'none';
+            createEventSection.style.display = 'none';
+
+            // Default calendar
+            console.log("Default calendar");
+            calendar = new FullCalendar.Calendar(calendarEl, {
+              headerToolbar: { 
+                start: 'today prev,next',
+                center: 'title',
+                end: 'dayGridMonth,timeGridWeek' 
+              },
+              initialView: 'dayGridMonth'
+            });
+            calendar.render();
+            auth2.then(removeCalendarID(user), onFailure);
+      }
+    }
+
+
       /* PROFILE.HTML */
       else if(window.location.pathname == "/profile.html") {
         // NAME
@@ -491,6 +543,7 @@ function removeFriend() {
 }
 
 function createSchedulerEvent() {
+  console.log("Creating event...");
   var eventName     = document.getElementById("eventName").value;
   var startdateTime = document.getElementById("startdateTime").value;
   var enddateTime   = document.getElementById("enddateTime").value;
@@ -536,7 +589,9 @@ function createSchedulerEvent() {
   });
   
   request.execute(function(event) {
+    console.log("In execute");
     appendPre('Event created: ' + event.htmlLink);
+    window.location.reload();
     alert("Event Created");
   });
 }
