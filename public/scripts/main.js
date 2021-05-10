@@ -63,10 +63,24 @@ firebase.auth().onAuthStateChanged((user) => {
             });
             calendar.render();
             auth2.then(removeCalendarID(user), onFailure);
-      }
-    }
+          }
+        }
 
+        else if(window.location.pathname == "/overlapEvents.html") {
 
+          var calendar;
+          var overlapCalendar = document.getElementById("overlapCalendar");
+          calendar = new FullCalendar.Calendar(overlapCalendar, {
+            headerToolbar: { 
+              start: 'today prev,next',
+              center: 'title',
+              end: 'dayGridMonth,timeGridWeek' 
+            },
+            initialView: 'dayGridMonth'
+          });
+          calendar.render();
+        }
+        
       /* PROFILE.HTML */
       else if(window.location.pathname == "/profile.html") {
         // NAME
@@ -341,8 +355,6 @@ function login() {
         window.location.replace("home.html");
       })
       .catch((error) => {
-        var errorCode = error.code;
-        var errorMessage = error.message;
         alert("Wrong username or password.");
       });
     // [END auth_signin_password]
@@ -351,7 +363,7 @@ function login() {
 function signOut(){
   firebase.auth().signOut().then(() => {
     // Sign-out successful.
-    gapi.auth2.getAuthInstance().signOut();
+    // gapi.auth2.getAuthInstance().signOut();
     alert("Signed Out");
   }).catch((error) => {
     // An error happened.
@@ -420,9 +432,14 @@ function searchForFriends() {
                 friend.setAttribute("class", "list-group-item");
                 friend.innerHTML = "<a><img class='listItemPhoto' src='"+userObject.photoURL+"'>"+userObject.displayName+"</a>";
                 friend.onclick = function() {
-                  console.log("pushing to global variable: "+userObject.calendarID);
-                  eventFriendsEmailsList.push(userObject.calendarID);
-                  console.log("pushing to global variable: "+userObject.uid);
+                  if(userObject.calendarID != "") {
+                    console.log("pushing to global calendarID: "+userObject.calendarID);
+                    eventFriendsEmailsList.push(userObject.calendarID);
+                  } else {
+                    console.log("pushing to global calendarID: \"\"");
+                    eventFriendsEmailsList.push("");
+                  }
+                  console.log("pushing to global uid: "+userObject.uid);
                   eventFriendsUidList.push(userObject.uid);
                   div.removeChild(friend);
                   createEventFriendsList();
@@ -445,7 +462,6 @@ function createEventFriendsList() {
   }
   // for all friends in global variable
   for(const friendUid of eventFriendsUidList) {
-    console.log("Adding friend with uid: "+friendUid);
     db.collection('users').doc(friendUid).get().then((doc) => {
       var friendObject = doc.data();
       var friendElement = document.createElement("STRONG");
@@ -457,17 +473,18 @@ function createEventFriendsList() {
       closeButton.innerHTML = "X";
 
       closeButton.onclick = function() {
-        console.log("Remove friend from event: "+friendObject);
+        console.log("Remove friend from event: "+friendObject.displayName);
         // Remove from global arrays by finding index
         var i = eventFriendsUidList.indexOf(friendObject.uid);
         if(i > -1) {
           eventFriendsUidList.splice(i, 1);
+          eventFriendsEmailsList.splice(i, 1);
         }
 
-        var j = eventFriendsEmailsList.indexOf(friendObject.calendarID);
+        /*var j = eventFriendsEmailsList.indexOf(friendObject.calendarID);
         if(j > -1) {
           eventFriendsEmailsList.splice(j, 1);
-        }
+        }*/
 
         friendsInEvents.removeChild(friendElement);
         friendsInEvents.removeChild(closeButton);
@@ -548,14 +565,17 @@ function createSchedulerEvent() {
   var startdateTime = document.getElementById("startdateTime").value;
   var enddateTime   = document.getElementById("enddateTime").value;
   var eventDescription = document.getElementById("eventDescription").value;
+  var eventLocation = document.getElementById("eventLocation").value;
 
   console.log("Event friends emails list: "+eventFriendsEmailsList);
   console.log("startdatetime: "+startdateTime+':00-07:00');
   console.log("enddatetime: "+enddateTime+":00-07:00");
+  console.log("Event description: "+eventDescription);
+  console.log("Event location: "+eventLocation);
 
   var event = {
     'summary': eventName,
-    'location': '800 Howard St., San Francisco, CA 94103',
+    'location': eventLocation,
     'description': eventDescription,
     'start': {
       'dateTime': startdateTime+=":00-07:00", 
@@ -565,10 +585,6 @@ function createSchedulerEvent() {
       'dateTime': enddateTime+=":00-07:00",
       'timeZone': 'America/Los_Angeles'
     },
-    /*
-    'recurrence': [
-      'RRULE:FREQ=DAILY;COUNT=1'
-    ],*/
     'attendees': [],
     'reminders': {
       'useDefault': false,
@@ -580,7 +596,9 @@ function createSchedulerEvent() {
   };
 
   for(var i=0; i<eventFriendsEmailsList.length; i++){
-    event.attendees.push({email: eventFriendsEmailsList[i]});
+    if(eventFriendsEmailsList[i]!="") {
+      event.attendees.push({email: eventFriendsEmailsList[i]});
+    }
   }
 
   var request = gapi.client.calendar.events.insert({

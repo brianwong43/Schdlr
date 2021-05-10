@@ -9,6 +9,10 @@
     <link rel="shortcut icon" href="images/CalendarIcon.ico">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <title>Scheduler</title>
+    
+    <!-- CALENDAR STUFF -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@5.6.0/main.min.css' rel='stylesheet' />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.6.0/main.min.js'></script>
   </head>
   <body>
 
@@ -51,7 +55,7 @@
           <a class="navbar-brand" href="home.html">Scheduler</a>
         </div>
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Profile</a></li>
+          <li><a href="#">Profile</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li><a href="index.html" onclick="signOut()"><span class="glyphicon glyphicon-log-out"></span> Sign Out</a></li>
@@ -68,37 +72,8 @@
     </nav>
 
     <!-- Content -->
-    <div class="container-lg">
-      <div class="row" id="account-row">
-        <div class="col-sm-8" id="account-row">
-        <!-- Left side -->
-        <div class="panel panel-primary" id="account-panels">
-          <div class="panel-body"><h1>Account Details</h1></div>
-          <div class="panel-footer">
-            <div class="center-content">
-              <!--Profile Picture-->
-              <img class="crop" id="profilePicture" src="images/ProfilePic.jpg">
-            </div>
-            <br><br>
-            <!--Name-->  
-            <h1 style="text-align: center;"><span id="profileName"></span></h1>
-            <a class="bottom-left" href="profileEdit.html">Edit Profile</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-sm-4" id="account-row">
-        <!-- Right side -->
-        <div class="panel panel-primary" id="account-panels">
-          <div class="panel-body"><h1>Friends</h1></div>
-          <div class="panel-footer">
-            <!--input type="text" id="searchBar" placeholder="Search for Friends..."-->
-            <p>Friends:</p>
-            <ul class="list-group" id="profileFriends"></ul>
-          </div>
-        </div>
-      </div>
-
+    <div class="content">
+        <div id='overlapCalendar'></div>
     </div> 
     <footer>
       <p>©Copyright 2050 by nobody. All rights reversed.</p>
