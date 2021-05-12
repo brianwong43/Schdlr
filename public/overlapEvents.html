@@ -73,8 +73,102 @@
 
     <!-- Content -->
     <div class="content">
+        <p>Select a time period for event: </p>
+        <p>Green = Open, Red = Busy</p>
         <div id='overlapCalendar'></div>
     </div> 
+
+
+    <!-- SCRIPT FOR CALENDAR HERE -->
+    <script type="text/javascript">
+      // Client ID and API key from the Developer Console
+      var CLIENT_ID = '787536569268-elefuvio2stdcvvn58aociq5ijb84t6t.apps.googleusercontent.com';
+      var API_KEY = 'AIzaSyC1rvN3zf0_W9Vz_oq-TTFY6-g5-XyyXOY';
+
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      var SCOPES = "https://www.googleapis.com/auth/calendar";
+
+      /*function authenticate() {
+        return gapi.auth2.getAuthInstance()
+            .signIn({scope: SCOPES})
+            .then(function() { console.log("Sign-in successful"); },
+                  function(err) { console.error("Error signing in", err); });
+      }*/
+
+      function loadClient() {
+        gapi.client.setApiKey(API_KEY);
+        return gapi.client.load("https://content.googleapis.com/discovery/v1/apis/calendar/v3/rest")
+            .then(function() { console.log("GAPI client loaded for API"); },
+                  function(err) { console.error("Error loading GAPI client for API", err); });
+      }
+
+      gapi.load("client:auth2", function() {
+        gapi.auth2.init({client_id: CLIENT_ID});
+      });
+
+      function executeBusyList() {
+        return gapi.client.calendar.freebusy.query({
+          "resource": {
+            "timeMin": '2021-05-11T12:00:00-07:00',
+            "timeMax": '2021-05-12T12:00:00-07:00',
+            "timeZone": 'America/Los_Angeles',
+            "items": [
+              {
+                id: 'jtsuch1122@gmail.com'
+              }
+            ]
+          }
+        }).then(function(response) {
+          // Handle the results here (response.result has the parsed body).
+          console.log("Response", response);
+        },
+        function(err) { console.error("Execute error", err); 
+        });
+      }
+      /**
+       *  On load, called to load the auth2 library and API client library.
+       */
+      //function handleClientLoad() {
+        //gapi.load('client:auth2', initClient);
+      //}
+
+      /**
+       *  Initializes the API client library and sets up sign-in state
+       *  listeners.
+       *
+      var auth2;
+      function initClient() {
+        auth2 = gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES
+        }).then(function () {
+          console.log("Inside of initClient()");
+
+        }, function(error) {
+          //appendPre(JSON.stringify(error, null, 2));
+          console.log("initClient Failed");
+        });
+      }
+
+      function onFailure() {
+        console.log("Failed to work right");
+      }*/
+
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};loadClient()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+    <!-- END OF CALENDAR API -->
+
+
     <footer>
       <p>©Copyright 2050 by nobody. All rights reversed.</p>
     </footer>

@@ -15,6 +15,7 @@ firebase.auth().onAuthStateChanged((user) => {
         window.location.replace("home.html");
       }
 
+      /* HOME.HTML */
       else if(window.location.pathname == "/home.html") {
         var calendarEl = document.getElementById('calendar');
         var authorizeButton = document.getElementById('authorize_button');
@@ -66,20 +67,30 @@ firebase.auth().onAuthStateChanged((user) => {
           }
         }
 
-        else if(window.location.pathname == "/overlapEvents.html") {
+        //else if(window.location.pathname == "/overlapEvents.html") {
 
-          var calendar;
-          var overlapCalendar = document.getElementById("overlapCalendar");
-          calendar = new FullCalendar.Calendar(overlapCalendar, {
-            headerToolbar: { 
-              start: 'today prev,next',
-              center: 'title',
-              end: 'dayGridMonth,timeGridWeek' 
-            },
-            initialView: 'dayGridMonth'
-          });
-          calendar.render();
-        }
+
+
+          /*var busyList;
+          if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            console.log("User signed in");
+            auth2.then(busyList = executeBusyList(), onFailure);
+            console.log("Busy list: "+busyList);
+            var calendar;
+            var overlapCalendar = document.getElementById("overlapCalendar");
+            calendar = new FullCalendar.Calendar(overlapCalendar, {
+              headerToolbar: { 
+                start: 'today prev,next',
+                center: 'title',
+                end: 'timeGridWeek'
+              },
+              initialView: 'timeGridWeek'
+            });
+            calendar.render();
+          } else {
+            console.log("User not signed in");
+          }*/
+        //}
         
       /* PROFILE.HTML */
       else if(window.location.pathname == "/profile.html") {
@@ -395,7 +406,8 @@ function searchDropdown() {
 }
 
 function clearGlobalList() {
-  eventFriendsList = [];
+  eventFriendsEmailsList = [];
+  eventFriendsUidList = [];
 }
 
 function textBoxDropdown() {
@@ -611,5 +623,25 @@ function createSchedulerEvent() {
     appendPre('Event created: ' + event.htmlLink);
     window.location.reload();
     alert("Event Created");
+  });
+}
+
+function overlapModalLoad() {
+  $("#overlapCalendar").fullCalendar({
+    header:{
+      left:'prev',
+      center:'title',
+      right:'next'
+    },
+    defaultView:'agendaDay'
+  });
+  
+  $('#overlapModal').on('shown.bs.modal', function () {
+    $("#overlapCalendar").fullCalendar('render');
+  });
+  
+  console.log("In here");
+  $("#overlapButton").on("click",function(){
+    $("#overlapModal").modal(open).show();;
   });
 }
