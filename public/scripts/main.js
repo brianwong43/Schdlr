@@ -604,7 +604,7 @@ function createSchedulerEvent() {
 /* 
  * Loads the Overlap Calendar and finds overlapping freetime
  */
-function overlapModalLoad() {
+function overlapModalLoad(response) {
   var overlapCalendar = document.getElementById("overlapCalendar");
   var calendar;
   calendar = new FullCalendar.Calendar(overlapCalendar, {
@@ -613,13 +613,14 @@ function overlapModalLoad() {
       center: 'title',
       end: 'dayGridMonth,timeGridWeek' 
     },
-    initialView: 'dayGridMonth'
+    initialView: 'timeGridWeek'
   });
 
-  setTimeout(function(){calendar.render();},500);
+  var calendarID = 'jtsuch1122@gmail.com';
+  // Add event background colors based on busy List
+  console.log("Justin's Busy List: "+response.result.calendars[calendarID].busy[0].start);
 
-  var busyList = executeBusyList();
-  console.log("Busy list: "+busyList);
+  setTimeout(function(){calendar.render();},500);
 }
 
 function executeBusyList() {
@@ -642,6 +643,7 @@ function executeBusyList() {
   }).then(function(response) {
     // Handle the results here (response.result has the parsed body).
     console.log("Response", response);
+    overlapModalLoad(response);
   },
   function(err) { console.error("Execute error", err); 
   });
