@@ -66,31 +66,6 @@ firebase.auth().onAuthStateChanged((user) => {
             auth2.then(removeCalendarID(user), onFailure);
           }
         }
-
-        //else if(window.location.pathname == "/overlapEvents.html") {
-
-
-
-          /*var busyList;
-          if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            console.log("User signed in");
-            auth2.then(busyList = executeBusyList(), onFailure);
-            console.log("Busy list: "+busyList);
-            var calendar;
-            var overlapCalendar = document.getElementById("overlapCalendar");
-            calendar = new FullCalendar.Calendar(overlapCalendar, {
-              headerToolbar: { 
-                start: 'today prev,next',
-                center: 'title',
-                end: 'timeGridWeek'
-              },
-              initialView: 'timeGridWeek'
-            });
-            calendar.render();
-          } else {
-            console.log("User not signed in");
-          }*/
-        //}
         
       /* PROFILE.HTML */
       else if(window.location.pathname == "/profile.html") {
@@ -626,22 +601,48 @@ function createSchedulerEvent() {
   });
 }
 
+/* 
+ * Loads the Overlap Calendar and finds overlapping freetime
+ */
 function overlapModalLoad() {
-  $("#overlapCalendar").fullCalendar({
-    header:{
-      left:'prev',
-      center:'title',
-      right:'next'
+  var overlapCalendar = document.getElementById("overlapCalendar");
+  var calendar;
+  calendar = new FullCalendar.Calendar(overlapCalendar, {
+    headerToolbar: { 
+      start: 'today prev,next',
+      center: 'title',
+      end: 'dayGridMonth,timeGridWeek' 
     },
-    defaultView:'agendaDay'
+    initialView: 'dayGridMonth'
   });
-  
-  $('#overlapModal').on('shown.bs.modal', function () {
-    $("#overlapCalendar").fullCalendar('render');
-  });
-  
-  console.log("In here");
-  $("#overlapButton").on("click",function(){
-    $("#overlapModal").modal(open).show();;
+
+  setTimeout(function(){calendar.render();},500);
+
+  var busyList = executeBusyList();
+  console.log("Busy list: "+busyList);
+}
+
+function executeBusyList() {
+  var timeMin = new Date('2021-05-01 12:00:00').toISOString();
+  var timeMax = new Date('2021-05-30 12:00:00').toISOString();
+  return gapi.client.calendar.freebusy.query({
+    "resource": {
+      "timeMin": timeMin, //'2021-05-01T12:00:00-07:00',
+      "timeMax": timeMax, //'2021-05-30T12:00:00-07:00',
+      "timeZone": 'America/Los_Angeles',
+      "items": [
+        {
+          id: 'jtsuch1122@gmail.com'
+        },
+        {
+          id: 'brianwong43@gmail.com'
+        }
+      ]
+    }
+  }).then(function(response) {
+    // Handle the results here (response.result has the parsed body).
+    console.log("Response", response);
+  },
+  function(err) { console.error("Execute error", err); 
   });
 }

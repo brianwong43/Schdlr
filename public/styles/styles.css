@@ -101,6 +101,15 @@ a {
   min-height: 20px;
 }
 
+.fitCalendar {
+  width: 100vh;
+  height: 70vh;
+}
+
+#overlapCalendar {
+  height: 100%;
+  width: 100%;
+}
 
 /* DROPDOWN STUFF */
 
