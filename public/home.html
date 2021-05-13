@@ -82,7 +82,7 @@
     <!-- Content -->
     <div class="content">
       <div id="createEventSection" style="display: none;">
-        <button type="button" onclick="clearGlobalList()" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+        <button type="button" onclick="clearGlobalList();executeBusyList()" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
           Create Event
         </button>
         <button type="button" onclick="executeBusyList()" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#overlapModal">
@@ -99,33 +99,49 @@
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div>
-              
                 <div class="modal-body">
                   <form onsubmit="createSchedulerEvent();return false">
-                    <div class="form-group">
-                      <label for="eventName">*Event Name:</label>
-                      <input type="text" class="form-control" id="eventName" placeholder="Title" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="startdateTime">*Start Time:</label>
-                      <input type="datetime-local" class="form-control" id="startdateTime" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="enddateTime">*End Time:</label>
-                      <input type="datetime-local" class="form-control" id="enddateTime" required>
-                    </div>
-                    <div class="form-group">
-                      <label for="description">Event Description:</label>
-                      <input type="text" class="form-control" id="eventDescription" placeholder="Describe it">
-                    </div>
-                    <div class="form-group">
-                      <label for="eventLocation">Event Location:</label>
-                      <input type="text" class="form-control" id="eventLocation" placeholder="Where it at?">
-                    </div>
-                    <p class="giveBorder" id="friendsInEvents"></p>
-                    <div class="form-group">
-                      <input type="text" onclick="textBoxDropdown()" placeholder="Search for friends..." id="textBoxInput">
-                      <ul class="list-group" id="friendList"></ul>
+
+                    <div class="container-fluid">
+                      <div class="row">
+                        
+                        <!-- Event Details Column -->
+                        <div class="col-sm-4">
+                          <div class="form-group">
+                            <label for="eventName">*Event Name:</label>
+                            <input type="text" class="form-control" id="eventName" placeholder="Title" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="startdateTime">*Start Time:</label>
+                            <input type="datetime-local" class="form-control" id="startdateTime" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="enddateTime">*End Time:</label>
+                            <input type="datetime-local" class="form-control" id="enddateTime" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="description">Event Description:</label>
+                            <input type="text" class="form-control" id="eventDescription" placeholder="Describe it">
+                          </div>
+                          <div class="form-group">
+                            <label for="eventLocation">Event Location:</label>
+                            <input type="text" class="form-control" id="eventLocation" placeholder="Where it at?">
+                          </div>
+                          <p class="giveBorder" id="friendsInEvents"></p>
+                          <div class="form-group">
+                            <input type="text" onclick="textBoxDropdown()" placeholder="Search for friends..." id="textBoxInput">
+                            <ul class="list-group" id="friendList"></ul>
+                          </div>
+                        </div>
+                        <!-- Calendar Column -->
+                        <div class="col-sm-8">
+                          <div class="fitCalendar">
+                            <div id="overlapCalendar"></div>
+                          </div>
+                        </div>
+                      
+                      
+                      </div>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
