@@ -1,7 +1,7 @@
 // Asynchronus locks
 var searchUsersSemaphore = 0; 
 var searchFriendsSemaphore = 0; 
-var eventFriendsEmailsList = []; //{'email': 'email@gmail.com'}
+var eventFriendsEmailsList = []; 
 var eventFriendsUidList = [];
 
 firebase.auth().onAuthStateChanged((user) => {
@@ -608,17 +608,36 @@ function overlapModalLoad(response) {
   var overlapCalendar = document.getElementById("overlapCalendar");
   var calendar;
   calendar = new FullCalendar.Calendar(overlapCalendar, {
+    selectable: true,
     headerToolbar: { 
       start: 'today prev,next',
       center: 'title',
       end: 'dayGridMonth,timeGridWeek' 
     },
-    initialView: 'timeGridWeek'
+    initialView: 'timeGridWeek',
+    select: function(info) {
+      //Do something
+    }
   });
 
-  var calendarID = 'jtsuch1122@gmail.com';
-  // Add event background colors based on busy List
-  console.log("Justin's Busy List: "+response.result.calendars[calendarID].busy[0].start);
+  var busyList = [];
+  var allBusyLists = response.result.calendars;
+  
+  for(var cid = 0; cid < eventFriendsEmailsList.length; cid++) {
+    if(eventFriendsEmailsList[cid] != "") {
+      var calendarID = eventFriendsEmailsList[cid];
+      console.log("Highlight events of: "+calendarID);
+      for(var i = 0; i < allBusyLists[calendarID].busy.length; i++) {
+        busyList.push({
+          start: allBusyLists[calendarID].busy[i].start, 
+          end: allBusyLists[calendarID].busy[i].end,
+          display: 'background',
+          color: 'red'
+        });
+      }
+    }
+  }
+  calendar.addEventSource(busyList);
 
   setTimeout(function(){calendar.render();},500);
 }
