@@ -413,7 +413,7 @@ function searchForFriends() {
           for(var i=0; i<friendList.length; i=i+1) {
             db.collection('users').doc(friendList[i]).get().then((doc) => {
               var userObject = doc.data();
-              if(userObject.displayName.toUpperCase().startsWith(input) && input!=="" && !eventFriendsList.includes(userObject.uid)) {
+              if(userObject.displayName.toUpperCase().startsWith(input) && input!=="" && !eventFriendsUidList.includes(userObject.uid)) {
                 console.log("Listing: "+userObject.displayName);
                 var friend = document.createElement("LI");
                 friend.setAttribute("class", "list-group-item");

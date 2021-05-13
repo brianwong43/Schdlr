@@ -102,13 +102,18 @@ a {
 }
 
 .fitCalendar {
-  width: 100vh;
-  height: 70vh;
+  min-width: 200px;
+  height: 100%;
 }
 
 #overlapCalendar {
   height: 100%;
   width: 100%;
+}
+
+.modal-dialog {
+  width: 90% !important;
+  height: 90%;
 }
 
 /* DROPDOWN STUFF */
