@@ -24,13 +24,15 @@ firebase.auth().onAuthStateChanged((user) => {
         var calendarID, calendar;
         if (gapi.auth2.getAuthInstance().isSignedIn.get()) {
           auth2.then(calendarID = storeCalendarID(user), onFailure).then(function() { 
-            console.log("Calendar ID: " + calendarID);
+            console.log("Google Calendar Calendar ID: " + calendarID);
+            eventFriendsEmailsList.push(calendarID);
+            eventFriendsUidList.push(user.uid);
             authorizeButton.style.display = 'none';
             signoutButton.style.display = 'block';
             createEventSection.style.display = 'block';
 
             //Create a calendar with users events
-            console.log("User calendar");
+            console.log("Making user calendar in home...");
             calendar = new FullCalendar.Calendar(calendarEl, {
               headerToolbar: { 
                 start: 'today prev,next',
@@ -380,10 +382,6 @@ function searchDropdown() {
   document.getElementById("myInput").oninput = searchForEveryone;
 }
 
-function clearGlobalList() {
-  eventFriendsEmailsList = [];
-  eventFriendsUidList = [];
-}
 
 function textBoxDropdown() {
   document.getElementById("textBoxInput").oninput = searchForFriends;
@@ -422,6 +420,7 @@ function searchForFriends() {
                   if(userObject.calendarID != "") {
                     console.log("pushing to global calendarID: "+userObject.calendarID);
                     eventFriendsEmailsList.push(userObject.calendarID);
+                    executeBusyList();
                   } else {
                     console.log("pushing to global calendarID: \"\"");
                     eventFriendsEmailsList.push("");
@@ -448,7 +447,9 @@ function createEventFriendsList() {
     friendsInEvents.removeChild(friendsInEvents.firstChild);
   }
   // for all friends in global variable
+  var isFirst = true;
   for(const friendUid of eventFriendsUidList) {
+    if(isFirst) { isFirst = false; continue; }
     db.collection('users').doc(friendUid).get().then((doc) => {
       var friendObject = doc.data();
       var friendElement = document.createElement("STRONG");
@@ -464,14 +465,10 @@ function createEventFriendsList() {
         // Remove from global arrays by finding index
         var i = eventFriendsUidList.indexOf(friendObject.uid);
         if(i > -1) {
+          if(eventFriendsEmailsList[i]!=""){ executeBusyList() };
           eventFriendsUidList.splice(i, 1);
           eventFriendsEmailsList.splice(i, 1);
         }
-
-        /*var j = eventFriendsEmailsList.indexOf(friendObject.calendarID);
-        if(j > -1) {
-          eventFriendsEmailsList.splice(j, 1);
-        }*/
 
         friendsInEvents.removeChild(friendElement);
         friendsInEvents.removeChild(closeButton);
@@ -582,7 +579,7 @@ function createSchedulerEvent() {
     }
   };
 
-  for(var i=0; i<eventFriendsEmailsList.length; i++){
+  for(var i=1; i<eventFriendsEmailsList.length; i++){
     if(eventFriendsEmailsList[i]!="") {
       event.attendees.push({email: eventFriendsEmailsList[i]});
     }
@@ -598,13 +595,15 @@ function createSchedulerEvent() {
     appendPre('Event created: ' + event.htmlLink);
     window.location.reload();
     alert("Event Created");
+    //eventFriendsEmailsList = [firebase.auth().currentUser.calendarID]; 
+    //eventFriendsUidList = [firebase.auth().currentUser.uid];
   });
 }
 
 /* 
  * Loads the Overlap Calendar and finds overlapping freetime
  */
-function overlapModalLoad(response) {
+function renderOverlapCalendar(response) {
   var overlapCalendar = document.getElementById("overlapCalendar");
   var calendar;
   calendar = new FullCalendar.Calendar(overlapCalendar, {
@@ -616,12 +615,22 @@ function overlapModalLoad(response) {
     },
     initialView: 'timeGridWeek',
     select: function(info) {
-      //Do something
+      console.log("Selected: "+info);
+      var startTime = document.getElementById("startdateTime");
+      var endTime = document.getElementById("enddateTime");
+      var dateFormatStart = new Date(info.start+"GMT").toISOString();
+      var dateFormatEnd = new Date(info.end+"GMT").toISOString();
+      console.log("ISO String start: "+dateFormatStart.replace(":00.000Z", ""));
+      console.log("ISO String end: "+dateFormatEnd.replace(":00.000Z", ""));
+      startTime.value = dateFormatStart.replace(":00.000Z", "");
+      endTime.value = dateFormatEnd.replace(":00.000Z", "");
     }
   });
 
   var busyList = [];
   var allBusyLists = response.result.calendars;
+
+  console.log("Global email list: "+eventFriendsEmailsList);
   
   for(var cid = 0; cid < eventFriendsEmailsList.length; cid++) {
     if(eventFriendsEmailsList[cid] != "") {
@@ -643,6 +652,15 @@ function overlapModalLoad(response) {
 }
 
 function executeBusyList() {
+
+  var calendarIDWithNoEmpty = [];
+  for(var i = 0; i < eventFriendsEmailsList.length; i++) {
+    if(eventFriendsEmailsList[i] != "") {
+      calendarIDWithNoEmpty.push({id: eventFriendsEmailsList[i]});
+    }
+  }
+  console.log("CalendarIDWithNoEmpty: "+calendarIDWithNoEmpty);
+
   var timeMin = new Date('2021-05-01 12:00:00').toISOString();
   var timeMax = new Date('2021-05-30 12:00:00').toISOString();
   return gapi.client.calendar.freebusy.query({
@@ -650,19 +668,12 @@ function executeBusyList() {
       "timeMin": timeMin, //'2021-05-01T12:00:00-07:00',
       "timeMax": timeMax, //'2021-05-30T12:00:00-07:00',
       "timeZone": 'America/Los_Angeles',
-      "items": [
-        {
-          id: 'jtsuch1122@gmail.com'
-        },
-        {
-          id: 'brianwong43@gmail.com'
-        }
-      ]
+      "items": calendarIDWithNoEmpty
     }
   }).then(function(response) {
     // Handle the results here (response.result has the parsed body).
     console.log("Response", response);
-    overlapModalLoad(response);
+    renderOverlapCalendar(response);
   },
   function(err) { console.error("Execute error", err); 
   });
