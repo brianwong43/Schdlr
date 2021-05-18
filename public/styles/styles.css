@@ -5,6 +5,11 @@
     background-size: cover;
 }
 
+.calendarContainer {
+  margin: auto;
+  max-width: 1000px;
+}
+
 #description {
 	font-family:'Times New Roman', Times, serif;
 	font-size:20px;
