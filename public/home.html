@@ -277,6 +277,9 @@
                 initialView: 'dayGridMonth',
                 events: {
                   googleCalendarId: calendarID
+                },
+                eventClick: function(info) {
+                  info.jsEvent.preventDefault(); // don't let the browser navigate
                 }
               });
               calendar.render();
