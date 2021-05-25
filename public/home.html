@@ -31,6 +31,18 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
+    <!-- Mapbox -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css' rel='stylesheet' />
+    <!-- Load the `mapbox-gl-geocoder` plugin. -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css">
+    
+    <!-- Promise polyfill script is required -->
+    <!-- to use Mapbox GL Geocoder in IE 11. -->
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+ 
     <script>
       // Your web app's Firebase configuration
       // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -109,20 +121,50 @@
                             <input type="text" class="form-control" id="eventName" placeholder="Title" autocomplete="off" required>
                           </div>
                           <div class="form-group">
-                            <label for="startdateTime">*Start Time:</label>
-                            <input type="datetime-local" class="form-control" id="startdateTime" required>
-                          </div>
-                          <div class="form-group">
-                            <label for="enddateTime">*End Time:</label>
-                            <input type="datetime-local" class="form-control" id="enddateTime" required>
-                          </div>
-                          <div class="form-group">
                             <label for="description">Event Description:</label>
                             <input type="text" class="form-control" id="eventDescription" autocomplete="off" placeholder="Describe it">
                           </div>
                           <div class="form-group">
                             <label for="eventLocation">Event Location:</label>
-                            <input type="text" class="form-control" id="eventLocation" autocomplete="off" placeholder="Where it at?">
+                            <!--input type="text" class="form-control" id="eventLocation" autocomplete="off" placeholder="Where it at?">
+                          </div-->
+
+                          <!--The div element for the map -->
+                          <div id="map"></div>
+                          <div id="geocoder" class="geocoder"></div>
+
+                          <script>
+                            mapboxgl.accessToken = 'pk.eyJ1IjoianRzdWNoIiwiYSI6ImNrcDRiZ21vcDAxNXIyd3FlczdvMnJhbjgifQ.IzYSQIgoUKSskQtocQZNHg';
+                            var map = new mapboxgl.Map({
+                              container: 'map', // container ID
+                              style: 'mapbox://styles/mapbox/streets-v11', // style URL
+                              center: [-122, 37.5], // starting position [lng, lat]
+                              zoom: 5 // starting zoom
+                            });
+
+                            map.on('click', function(e) {
+                                console.log("DATA: "+e.lngLat);
+                            });
+
+                            var geolocate = new mapboxgl.GeolocateControl({
+                              positionOptions: {
+                                enableHighAccuracy: true
+                              },
+                              trackUserLocation: true
+                            });
+                            
+                            map.addControl(geolocate);
+                            geolocate.on('geolocate', function() {
+                              console.log('A geolocate event has occurred.')
+                            });
+                              
+                            var geocoder = new MapboxGeocoder({
+                              accessToken: mapboxgl.accessToken,
+                              mapboxgl: mapboxgl
+                            }); 
+
+                            document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+                            </script>
                           </div>
                           <label for="textBoxInput">Attendees:</label>
                           <p class="giveBorder" id="friendsInEvents"></p>
@@ -136,6 +178,14 @@
                           <p>*Highlight date and time for event. Red zones are when invitees are busy.</p>
                           <div class="fitCalendar">
                             <div id="overlapCalendar"></div>
+                          </div>
+                          <div class="form-group">
+                            <label for="startdateTime">*Start Time:</label>
+                            <input type="datetime-local" class="form-control" id="startdateTime" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="enddateTime">*End Time:</label>
+                            <input type="datetime-local" class="form-control" id="enddateTime" required>
                           </div>
                         </div>
                       
@@ -193,8 +243,6 @@
         }
 
         function passFirebaseUser(firebase) {
-          console.log("Passing firebase user to home.html");
-          console.log("should not b undefined: "+firebase);
           firebaseUser = firebase;
         }
 
@@ -256,7 +304,6 @@
           var calendarID, calendar;
           if (isSignedIn) {
             auth2.then(calendarID = storeCalendarID(), onFailure).then(function() { 
-              console.log("Google Calendar ID: " + calendarID);
               eventFriendsEmailsList.push(calendarID);
               eventFriendsUidList.push(firebaseUser.uid);
               console.log("Calendar ID: " + calendarID);
@@ -338,7 +385,7 @@
         onload="this.onload=function(){};handleClientLoad()"
         onreadystatechange="if (this.readyState === 'complete') this.onload()">
       </script>
-          
+       
 
     </div>
 
