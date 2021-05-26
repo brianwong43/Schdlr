@@ -142,6 +142,7 @@
                               zoom: 5 // starting zoom
                             });
 
+                            //triggers when click on the map after it loads
                             map.on('click', function(e) {
                                 console.log("DATA: "+e.lngLat);
                             });
@@ -162,7 +163,13 @@
                               accessToken: mapboxgl.accessToken,
                               mapboxgl: mapboxgl
                             }); 
-
+                            
+                            //triggers when input has been set
+                            geocoder.on('result', e => {
+                              //prints all the info
+                              console.log(e.result);
+                              //to print the center coordinates, do console.log(e.result.center);
+                            });
                             document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
                             </script>
                           </div>
