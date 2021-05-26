@@ -126,52 +126,55 @@
                           </div>
                           <div class="form-group">
                             <label for="eventLocation">Event Location:</label>
-                            <!--input type="text" class="form-control" id="eventLocation" autocomplete="off" placeholder="Where it at?">
-                          </div-->
 
-                          <!--The div element for the map -->
-                          <div id="map"></div>
-                          <div id="geocoder" class="geocoder"></div>
+                            <!--The div element for the map -->
+                            <div id="map"></div>
+                            <div id="geocoder" class="geocoder"></div>
 
-                          <script>
-                            mapboxgl.accessToken = 'pk.eyJ1IjoianRzdWNoIiwiYSI6ImNrcDRiZ21vcDAxNXIyd3FlczdvMnJhbjgifQ.IzYSQIgoUKSskQtocQZNHg';
-                            var map = new mapboxgl.Map({
-                              container: 'map', // container ID
-                              style: 'mapbox://styles/mapbox/streets-v11', // style URL
-                              center: [-122, 37.5], // starting position [lng, lat]
-                              zoom: 5 // starting zoom
-                            });
+                            <script>
+                              mapboxgl.accessToken = 'pk.eyJ1IjoianRzdWNoIiwiYSI6ImNrcDRiZ21vcDAxNXIyd3FlczdvMnJhbjgifQ.IzYSQIgoUKSskQtocQZNHg';
+                              var map = new mapboxgl.Map({
+                                container: 'map', // container ID
+                                style: 'mapbox://styles/mapbox/streets-v11', // style URL
+                                center: [-122, 37.5], // starting position [lng, lat]
+                                zoom: 5 // starting zoom
+                              });
 
-                            //triggers when click on the map after it loads
-                            map.on('click', function(e) {
-                                console.log("DATA: "+e.lngLat);
-                            });
-
-                            var geolocate = new mapboxgl.GeolocateControl({
-                              positionOptions: {
-                                enableHighAccuracy: true
-                              },
-                              trackUserLocation: true
-                            });
-                            
-                            map.addControl(geolocate);
-                            geolocate.on('geolocate', function() {
-                              console.log('A geolocate event has occurred.')
-                            });
+                              var geolocate = new mapboxgl.GeolocateControl({
+                                positionOptions: {
+                                  enableHighAccuracy: true
+                                },
+                                trackUserLocation: true
+                              });
                               
-                            var geocoder = new MapboxGeocoder({
-                              accessToken: mapboxgl.accessToken,
-                              mapboxgl: mapboxgl
-                            }); 
-                            
-                            //triggers when input has been set
-                            geocoder.on('result', e => {
-                              //prints all the info
-                              console.log(e.result);
-                              //to print the center coordinates, do console.log(e.result.center);
-                            });
-                            document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
-                            </script>
+                              map.addControl(geolocate);
+                              geolocate.on('geolocate', function(e) {
+                                console.log('Geolocate event result: '+e.coords.longitude);
+                                console.log('Geolocate event result: '+e.coords.latitude);
+                                fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/'+e.coords.longitude+','+e.coords.latitude+'.json?types=address&access_token=pk.eyJ1IjoianRzdWNoIiwiYSI6ImNrcDRiZ21vcDAxNXIyd3FlczdvMnJhbjgifQ.IzYSQIgoUKSskQtocQZNHg')
+                                  .then(response => response.json())
+                                  .then(data => { 
+                                    var currLocation = data.features[0].place_name
+                                    console.log(currLocation);
+                                    document.getElementsByClassName("mapboxgl-ctrl-geocoder--input")[0].value = currLocation;
+                                  });
+                              });
+                                
+                              var geocoder = new MapboxGeocoder({
+                                accessToken: mapboxgl.accessToken,
+                                mapboxgl: mapboxgl
+                              }); 
+                              
+                              //triggers when input has been set
+                              geocoder.on('result', e => {
+                                console.log("Selected Location: "+e.result);
+                                document.getElementById("geocoder").value = e.result.place_name;
+                              });
+
+                              document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+
+                              /* END OF MAP SEQUENCE */
+                              </script>
                           </div>
                           <label for="textBoxInput">Attendees:</label>
                           <p class="giveBorder" id="friendsInEvents"></p>
@@ -242,6 +245,8 @@
         var authorizeButton = document.getElementById('authorize_button');
         var signoutButton = document.getElementById('signout_button');
         var createEventSection = document.getElementById('createEventSection');
+
+        var firebaseUser;
         /**
          *  On load, called to load the auth2 library and API client library.
          */
@@ -250,6 +255,7 @@
         }
 
         function passFirebaseUser(firebase) {
+          console.log("In passFirebaseUser()");
           firebaseUser = firebase;
         }
 
@@ -288,6 +294,7 @@
           var calendarID = profile.getEmail();
 
           // Now add this to user object
+          console.log("In storeCalendarID()");
           db.collection('users').doc(firebaseUser.uid).update({
             calendarID: calendarID
           });
@@ -389,7 +396,7 @@
       </script>
 
       <script async defer src="https://apis.google.com/js/api.js"
-        onload="this.onload=function(){};handleClientLoad()"
+        onload="this.onload=function(){};"
         onreadystatechange="if (this.readyState === 'complete') this.onload()">
       </script>
        

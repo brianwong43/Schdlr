@@ -17,7 +17,9 @@ firebase.auth().onAuthStateChanged((user) => {
 
       /* HOME.HTML */
       else if(window.location.pathname == "/home.html") {
+        console.log("Inside auth state change: ");
         passFirebaseUser(user);
+        handleClientLoad();
       }
         
       /* PROFILE.HTML */
@@ -500,7 +502,7 @@ function createSchedulerEvent() {
   var startdateTime = document.getElementById("startdateTime").value;
   var enddateTime   = document.getElementById("enddateTime").value;
   var eventDescription = document.getElementById("eventDescription").value;
-  var eventLocation = document.getElementById("eventLocation").value;
+  var eventLocation = document.getElementById("geocoder").value;
 
   console.log("Event friends emails list: "+eventFriendsEmailsList);
   console.log("startdatetime: "+startdateTime+':00-07:00');
