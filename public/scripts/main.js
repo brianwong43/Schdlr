@@ -502,7 +502,7 @@ function createSchedulerEvent() {
   var startdateTime = document.getElementById("startdateTime").value;
   var enddateTime   = document.getElementById("enddateTime").value;
   var eventDescription = document.getElementById("eventDescription").value;
-  var eventLocation = document.getElementById("geocoder").value;
+  var eventLocation = document.getElementsByClassName("mapboxgl-ctrl-geocoder--input")[0].value;
 
   console.log("Event friends emails list: "+eventFriendsEmailsList);
   console.log("startdatetime: "+startdateTime+':00-07:00');

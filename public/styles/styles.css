@@ -108,8 +108,8 @@ a {
 .giveBorder {
   border-style: solid;
   border-radius: 5px;
-  height: 35px;
-  color: #c7c7c7;
+  min-height: 35px;
+  border-color: #c7c7c7;
 }
 
 .fitCalendar {

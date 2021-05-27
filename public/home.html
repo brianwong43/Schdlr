@@ -149,8 +149,6 @@
                               
                               map.addControl(geolocate);
                               geolocate.on('geolocate', function(e) {
-                                console.log('Geolocate event result: '+e.coords.longitude);
-                                console.log('Geolocate event result: '+e.coords.latitude);
                                 fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/'+e.coords.longitude+','+e.coords.latitude+'.json?types=address&access_token=pk.eyJ1IjoianRzdWNoIiwiYSI6ImNrcDRiZ21vcDAxNXIyd3FlczdvMnJhbjgifQ.IzYSQIgoUKSskQtocQZNHg')
                                   .then(response => response.json())
                                   .then(data => { 
@@ -166,10 +164,10 @@
                               }); 
                               
                               //triggers when input has been set
-                              geocoder.on('result', e => {
-                                console.log("Selected Location: "+e.result);
-                                document.getElementById("geocoder").value = e.result.place_name;
-                              });
+                              //geocoder.on('result', e => {
+                              //  console.log("Selected Location: "+e.result);
+                              //  document.getElementById("geocoder").value = e.result.place_name;
+                              //});
 
                               document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
 
@@ -214,6 +212,56 @@
 
         <hr>
       </div>
+
+      <!-- MODAL FOR EVENT DETAILS -->
+      <div class="modal fade" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="eventModalLabel" style="font-size: 25px; font-weight: bold;">Event Details!</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <p>Hi</p>
+              <!--h2>Event Name:</h2><div id="eventNameView"></div>
+              <h2 id="descriptionExists">Event Description:</h2><div id="eventDescriptionView"></div>
+              <h2>Attendees:</h2><div id="eventAttendeesView"></div>
+              <h2>Time:</h2><div id="eventTimeView"></div>
+
+              <div id="map"></div>
+              <script>
+                // Get location and reverse them to coordinates
+                var long, lat;
+                fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/San%20Francisco.json?access_token=pk.eyJ1IjoianRzdWNoIiwiYSI6ImNrcDRiZ21vcDAxNXIyd3FlczdvMnJhbjgifQ.IzYSQIgoUKSskQtocQZNHg')
+                  .then(response => response.json())
+                  .then(data => { 
+                    console.log(data);
+                  });
+                
+                
+                mapboxgl.accessToken = 'pk.eyJ1IjoianRzdWNoIiwiYSI6ImNrcDRiZ21vcDAxNXIyd3FlczdvMnJhbjgifQ.IzYSQIgoUKSskQtocQZNHg';
+                var map = new mapboxgl.Map({
+                  container: 'map', // container ID
+                  style: 'mapbox://styles/mapbox/streets-v11', // style URL
+                  center: [-122, 37.5], // starting position [lng, lat]
+                  zoom: 5 // starting zoom
+                });
+
+                var marker1 = new mapboxgl.Marker()
+                  .setLngLat([12.554729, 55.70651])
+                  .addTo(map);
+              </script-->
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div> 
+          </div>
+        </div>
+      </div>
+      <!-- End of Event Details -->
+      
 
       <!--Add button to initiate auth sequence -->
       <button id="authorize_button" class="btn btn-primary btn-lg" style="display: none; margin-bottom: 20px;">Authorize</button>
@@ -341,6 +389,20 @@
                 },
                 eventClick: function(info) {
                   info.jsEvent.preventDefault(); // don't let the browser navigate
+                  console.log(info);
+                  var eventModal = document.getElementById("eventModal");
+
+                  /*document.getElementById("eventNameView").innerHTML = info.event.title;
+                  if(info.event.description) {
+                    document.getElementById("descriptionExists").style.display = 'block';
+                    document.getElementById("eventDescriptionView").innerHTML = info.event.description;
+                  } else {
+                    document.getElementById("descriptionExists").style.display = 'none';
+                  }
+                  //document.getElementById("eventAttendeesView");
+                  document.getElementById("eventTimeView").innerHTML = info.event.start + ' - ' + info.event.end;
+                  */
+                  eventModal.style.display = 'block';
                 }
               });
               calendar.render();
