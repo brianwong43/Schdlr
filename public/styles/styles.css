@@ -10,6 +10,11 @@
   width: 100%;
 }
 
+#eventMap {
+  height: 400px;
+  width: 100%;
+}
+
 .calendarContainer {
   margin: auto;
   max-width: 1000px;
