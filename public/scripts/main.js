@@ -560,6 +560,7 @@ function renderOverlapCalendar(response) {
   var overlapCalendar = document.getElementById("overlapCalendar");
   var calendar;
   calendar = new FullCalendar.Calendar(overlapCalendar, {
+    contentHeight: 400,
     selectable: true,
     headerToolbar: { 
       start: 'today prev,next',
