@@ -112,7 +112,7 @@
                   <form onsubmit="createSchedulerEvent();return false">
 
                     <div class="container-fluid">
-                      <div class="row">
+                      <div class="row" style="padding-bottom: 25px;">
                         
                         <!-- Event Details Column -->
                         <div class="col-sm-4" style="height: 80vh;">
@@ -162,12 +162,6 @@
                                 accessToken: mapboxgl.accessToken,
                                 mapboxgl: mapboxgl
                               }); 
-                              
-                              //triggers when input has been set
-                              //geocoder.on('result', e => {
-                              //  console.log("Selected Location: "+e.result);
-                              //  document.getElementById("geocoder").value = e.result.place_name;
-                              //});
 
                               document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
 
@@ -177,9 +171,30 @@
                           <label for="textBoxInput">Attendees:</label>
                           <p class="giveBorder" id="friendsInEvents"></p>
                           <div class="form-group">
-                            <input type="text" onclick="textBoxDropdown()" placeholder="Search for friends..." autocomplete="off" id="textBoxInput">
-                            <ul class="list-group" id="friendList" style="overflow-y:scroll; min-height:100px; max-height: 25vh;"></ul>
+                            <input type="text" placeholder="Search for friends..." autocomplete="off" id="textBoxInput">
+                            <ul class="list-group" id="friendList" style="overflow-y:scroll; min-height:100px; max-height: 150px; display: none;"></ul>
+                            <div id="blocker"></div>
                           </div>
+
+                          <script>
+                            var textBoxInput = document.getElementById("textBoxInput");
+                            var friendList = document.getElementById("friendList");
+                            var blocker = document.getElementById("blocker");
+                            document.onclick = function(e){
+                              if(e.target.id == 'blocker'){
+                                console.log("Clicked Modal");
+                                blocker.style.display = 'none';
+                                friendList.style.display = 'none';
+                              }
+                              if(e.target.id == 'textBoxInput' || e.target.id == 'friendList'){
+                                console.log("Clicked textBox or FriendList");
+                                blocker.style.display = 'block';
+                                friendList.style.display = 'block';
+                                textBoxDropdown();
+                              }
+                            }
+                          </script>
+
                         </div>
                         <!-- Calendar Column -->
                         <div class="col-sm-8" style="max-height: 500px;">
@@ -196,7 +211,6 @@
                             <input type="datetime-local" class="form-control" id="enddateTime" required>
                           </div>
                         </div>
-                      
                       
                       </div>
                     </div>
@@ -215,7 +229,7 @@
 
       <!-- MODAL FOR EVENT DETAILS -->
       <div class="modal" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog" role="document" id="modalDialogId">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="eventModalLabel" style="font-size: 25px; font-weight: bold;">Event Details!</h5>
@@ -228,15 +242,19 @@
                 <div class="row">
                   
                   <!-- Event Details Column -->
-                  <div class="col-sm-6" style="height: 60vh;">
+                  <div class="col-sm-6" id="leftCol" style="height: 60vh;">
 
                     <h2><strong>Event Name:</strong></h2><div id="eventNameView"></div><br>
-                    <h2 id="descriptionExists" style="display: none;"><strong>Event Description:</strong></h2><div id="eventDescriptionView"></div><br>
-                    <!--h2>Attendees:</h2><div id="eventAttendeesView"></div-->
+
+                    <div id="descriptionExists" style="display: none;">
+                      <h2><strong>Event Description:</strong></h2><div id="eventDescriptionView"></div><br>
+                    </div>
+                    
                     <h2><strong>Time:</strong></h2><div id="eventTimeView"></div>
+
                   </div>
-                  <div class="col-sm-6" style="height: 60vh;">
-                    <h2 id="locationExists" style="display: none;"><strong>Location:</strong></h2>
+                  <div class="col-sm-6" id="locationExists" style="display: none; height: 60vh;">
+                    <h2><strong>Location:</strong></h2>
                     <div id="eventLocationView"></div>
                     <div id="eventMap"></div>
                   </div>
@@ -252,8 +270,9 @@
       <script>
         closeEventModal();
         function closeEventModal(){
-          var eventModaln = document.getElementById("eventModal");
-          eventModaln.style.display = 'none';
+          document.getElementById("descriptionExists").style.display = 'none';
+          document.getElementById("locationExists").style.display = 'none';
+          document.getElementById("eventModal").style.display = 'none';
         }
       </script>
       <!-- End of Event Details -->
@@ -395,13 +414,13 @@
                     document.getElementById("descriptionExists").style.display = 'block';
                     document.getElementById("eventDescriptionView").innerHTML = '<h4>'+info.event.extendedProps.description+'<h4>';
                   }
-                  //document.getElementById("eventAttendeesView").innerHTML = info.event.;
-
                   // Converts time to convenient format
                   document.getElementById("eventTimeView").innerHTML = '<h4>'+info.event.start.toString().substring(0, 21) + '<br> to <br>' + info.event.end.toString().substring(0,21)+'<h4>';
 
                   // Finds location and grabs longitude and latitude
                   if(info.event.extendedProps.location) {
+                    document.getElementById("leftCol").style.width = '50%';
+                    document.getElementById("modalDialogId").style.maxWidth = '60%';
                     document.getElementById("locationExists").style.display = 'block';
                     var locationName = info.event.extendedProps.location;
                     var formattedName = locationName.replaceAll(" ", "%20");
@@ -427,7 +446,11 @@
                           .setLngLat([long, lat])
                           .addTo(map);
                       });
-                    }
+                  } else {
+                    console.log("NO LOCATION EXISTS");
+                    document.getElementById("modalDialogId").style.maxWidth = '40%';
+                    document.getElementById("leftCol").style.width = '100%';
+                  }
                   
                   document.getElementById("eventModal").style.display = 'block';
                 }
