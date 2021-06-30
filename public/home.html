@@ -171,33 +171,13 @@
                           <label for="textBoxInput">Attendees:</label>
                           <p class="giveBorder" id="friendsInEvents"></p>
                           <div class="form-group">
-                            <input type="text" placeholder="Search for friends..." autocomplete="off" id="textBoxInput">
-                            <ul class="list-group" id="friendList" style="overflow-y:scroll; min-height:100px; max-height: 150px; display: none;"></ul>
-                            <div id="blocker"></div>
+                            <input type="text" onclick="textBoxDropdown()" placeholder="Search for friends..." autocomplete="off" id="textBoxInput">
+                            <ul class="list-group" id="friendList" style="overflow-y:scroll; min-height:100px; max-height: 150px;"></ul>
                           </div>
-
-                          <script>
-                            var textBoxInput = document.getElementById("textBoxInput");
-                            var friendList = document.getElementById("friendList");
-                            var blocker = document.getElementById("blocker");
-                            document.onclick = function(e){
-                              if(e.target.id == 'blocker'){
-                                console.log("Clicked Modal");
-                                blocker.style.display = 'none';
-                                friendList.style.display = 'none';
-                              }
-                              if(e.target.id == 'textBoxInput' || e.target.id == 'friendList'){
-                                console.log("Clicked textBox or FriendList");
-                                blocker.style.display = 'block';
-                                friendList.style.display = 'block';
-                                textBoxDropdown();
-                              }
-                            }
-                          </script>
 
                         </div>
                         <!-- Calendar Column -->
-                        <div class="col-sm-8" style="max-height: 500px;">
+                        <div class="col-sm-8" style="height: 50vh;">
                           <p>*Highlight date and time for event. Red zones are when invitees are busy.</p>
                           <div class="fitCalendar">
                             <div id="overlapCalendar"></div>
@@ -447,7 +427,6 @@
                           .addTo(map);
                       });
                   } else {
-                    console.log("NO LOCATION EXISTS");
                     document.getElementById("modalDialogId").style.maxWidth = '40%';
                     document.getElementById("leftCol").style.width = '100%';
                   }

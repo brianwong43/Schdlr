@@ -615,12 +615,14 @@ function executeBusyList() {
   }
   console.log("CalendarIDWithNoEmpty: "+calendarIDWithNoEmpty);
 
-  var timeMin = new Date('2021-05-01 12:00:00').toISOString();
-  var timeMax = new Date('2021-05-30 12:00:00').toISOString();
+  var timeMin = new Date().toISOString();
+  var timeMax = new Date();
+  timeMax.setMonth(timeMax.getMonth() + 1);
+  timeMax = timeMax.toISOString();
   return gapi.client.calendar.freebusy.query({
     "resource": {
-      "timeMin": timeMin, //'2021-05-01T12:00:00-07:00',
-      "timeMax": timeMax, //'2021-05-30T12:00:00-07:00',
+      "timeMin": timeMin,
+      "timeMax": timeMax,
       "timeZone": 'America/Los_Angeles',
       "items": calendarIDWithNoEmpty
     }
