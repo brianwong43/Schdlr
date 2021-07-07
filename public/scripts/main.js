@@ -1,23 +1,25 @@
 // Asynchronus locks
 var searchUsersSemaphore = 0; 
-var searchFriendsSemaphore = 0; 
+var searchFriendsSemaphore = 0;
+
+// Global lists for tracking friends in created events
 var eventFriendsEmailsList = []; 
 var eventFriendsUidList = [];
 
+/*
+ *  Calls every time a page is loaded
+ */
 firebase.auth().onAuthStateChanged((user) => {
     if(user) {
 
-      console.log("User logged in...");
-      console.log("PATH: " + window.location.pathname);
-
       /* INDEX HTML */
       if(window.location.pathname == "/index.html" || window.location.pathname == "/") {
+        // If user is signed in, redirect them to home.html
         window.location.replace("home.html");
       }
 
       /* HOME.HTML */
       else if(window.location.pathname == "/home.html") {
-        console.log("Inside auth state change: ");
         passFirebaseUser(user);
         handleClientLoad();
       }
@@ -28,13 +30,11 @@ firebase.auth().onAuthStateChanged((user) => {
         document.getElementById("profileName").innerHTML = user.displayName;
 
         // PHOTO
-        console.log("user photo URL: " + user.photoURL);
         document.getElementById("profilePicture").src = user.photoURL;
 
         // FRIENDS
         db.collection('users').doc(user.uid).get().then((doc) => {
           if(doc.exists){
-            console.log("Document data:", doc.data());
             var userObject = doc.data();
             var friendList = userObject.friends;
             if(friendList.length > 0) {
@@ -49,7 +49,6 @@ firebase.auth().onAuthStateChanged((user) => {
 
       /* EDITPROFILE.HTML */
       else if(window.location.pathname == "/profileEdit.html") {
-        console.log("Inside of edit profile");
         document.getElementById("profileName").value = user.displayName;
         document.getElementById("displayProfilePic").src = user.photoURL;
       }
@@ -57,7 +56,6 @@ firebase.auth().onAuthStateChanged((user) => {
       /* OTHERUSERPROFILE.HTML */
       else if(window.location.pathname == "/otherUserProfile.html") {
         var uid = location.search.substring(1);
-        console.log("UID: "+uid);
 
         var addBtn = document.getElementById("addFriendButton");
         var rmvBtn = document.getElementById("removeFriendButton");
@@ -68,7 +66,6 @@ firebase.auth().onAuthStateChanged((user) => {
             if(uid == friendUid) {
               addBtn.style.display = "none";
               rmvBtn.style.display = "block";
-              console.log("Already friends");
               break;
             }
           }
@@ -77,11 +74,9 @@ firebase.auth().onAuthStateChanged((user) => {
         db.collection('users').doc(uid).get().then((doc) => {
           if(doc.exists){
             var userObject = doc.data();
-            console.log("USER: " + userObject);
             document.getElementById("friendsName").innerHTML = userObject.displayName;
 
             // PHOTO
-            console.log("user photo URL: " + userObject.photoURL);
             document.getElementById("friendsPicture").src = userObject.photoURL;
 
             var friendList = userObject.friends;
@@ -93,34 +88,21 @@ firebase.auth().onAuthStateChanged((user) => {
         });
 
       } else {
-        db.collection('users').doc(user.uid).get().then((doc) => {
-          if(doc.exists){
-            console.log("Document data:", doc.data());
-          } else {
-            console.log("No such document");
-          }
-        });
+        console.log("location unknown");
       } 
 
     /* USER NOT LOGGED IN */
     } else {
-      console.log("User logged out");
-
       if(window.location.pathname == "/login.html") {
         let loginemail = document.getElementById('loginuseremail');
         let loginpassword = document.getElementById('loginpassword');
         let rmCheck = document.getElementById('loginrememberme');
-
-        console.log("cache username:"+localStorage.username);
-        console.log("cache password:"+localStorage.password);
     
         if (localStorage.checkbox && localStorage.checkbox !== "") {
-          console.log("checkbox been checked");
           rmCheck.setAttribute("checked", "checked");
           loginemail.value = localStorage.username;
           loginpassword.value = localStorage.password;
         } else {
-          console.log("checkbox not checked");
           rmCheck.removeAttribute("checked");
           loginemail.value = "";
           loginpassword.value = "";
@@ -131,10 +113,11 @@ firebase.auth().onAuthStateChanged((user) => {
 
 /*
  * Used by PROFILE.HTML and OTHERUSERPROFILE.HTML in Auth Change
+ *
+ * Displays friends of given user in list format using inner html
  */
 function appendNames(uidList, appendId) {
   var user = firebase.auth().currentUser;
-  console.log("Name List: "+uidList);
   for(var i=0; i<uidList.length; i=i+1) {
     db.collection('users').doc(uidList[i]).get().then((doc) => {
       var userObject = doc.data();
@@ -151,18 +134,20 @@ function appendNames(uidList, appendId) {
   }
 }
 
+/* 
+ *  Activates when user presses the sign up button
+ *  Confirms that the passwords validity and then calls createUser()
+ */
 function signup() {
     let email = document.getElementById('useremail').value;
     let username = document.getElementById('username').value;
     let password = document.getElementById('password1').value;
     let confirmPassword = document.getElementById('password2').value;
     if(password != confirmPassword){
-        console.log("ERROR PASSWORD DOES NOT MATCH");
         alert("Passwords do not match, please try again.");
         return;
     } 
     if (password.length < 6){
-        console.log("ERROR PASSWORD TOO SHORT");
         alert("Too short! Password must be 6 characters or longer.");
         return;
     }
@@ -171,29 +156,26 @@ function signup() {
     .then((userCredential) => {
         // Signed in 
         var user = userCredential.user;   
-        console.log("Right before createuser");
         createUser(username);
     })
     .catch((error) => {
         var errorCode = error.code;
         var errorMessage = error.message;
-        alert("YOU'RE A FAILURE");
-        // ..
+        alert("Failed to sign up");
     });
 }
 
+/*
+ *  Calls to firebase and creates a generic User object
+ */ 
 function createUser(username){
-      console.log("Beginning of createUser");
       var user = firebase.auth().currentUser;
-      console.log("Made user: " + user.uid);
-
       // Set firestore db with user
       
       db.collection("users").doc(user.uid)
       .withConverter(userConverter)
       .set(new User(user.uid, username, [], "https://firebasestorage.googleapis.com/v0/b/schdlr-b3435.appspot.com/o/userPhotos%2FProfilePic.jpg?alt=media&token=894cb453-e99b-4663-8cf6-303e15d41269", ""))
       .then(() => {
-        console.log("Document successfully written!");
         addDisplayNameAndPhotoURL(username);
         })
         .catch((error) => {
@@ -201,24 +183,26 @@ function createUser(username){
     });
 }
 
+/*
+ *  Updates the generic User object to use the specific username and default image
+ */
 function addDisplayNameAndPhotoURL(username){
-    console.log("current: "+firebase.auth().currentUser.displayName);
     firebase.auth().currentUser.updateProfile({
         displayName: username,
         photoURL: "https://firebasestorage.googleapis.com/v0/b/schdlr-b3435.appspot.com/o/userPhotos%2FProfilePic.jpg?alt=media&token=894cb453-e99b-4663-8cf6-303e15d41269"
     }).then(function() {
-        console.log(firebase.auth().currentUser.displayName);
-        console.log('User Profile Updated Successfully');
         window.location.replace("home.html");
     }).catch(function(error) {
     // An error happened.
     });
 }
 
+/* 
+ *  When the user uses profileEdit.html, this function is called to update image and/or name
+ */
 function updateProfile() {
   let user = firebase.auth().currentUser;
   let profileName = document.getElementById('profileName').value;
-  console.log("current: "+ user.displayName);
 
   let storageRef = firebase.storage().ref("userPhotos/" + user.uid);  
   let file = document.getElementById("editProfilePicture").files[0];
@@ -231,7 +215,6 @@ function updateProfile() {
         displayName: profileName,
       })
       ).then(function() {
-        console.log('User Profile Updated Successfully');
         alert("File Uploaded");
         window.location.replace("profile.html");
       }).catch(function(error) {
@@ -249,19 +232,21 @@ function updateProfile() {
         // Update firestore as well
         updateUserObject(user.uid, profileName, url)
         ).then(function() {
-          console.log('User Profile Updated Successfully');
           alert("File Uploaded");
           document.getElementById("displayProfilePic").src = url;
           window.location.replace("profile.html");
         }).catch(function(error) {
           // An error happened.
-          console.log("Problem updating Profile name + photo");
+          console.log("Problem updating Profile name / photo");
         });
         });
       });
   }
 }
 
+/*
+ *  This updates the User object, not the firebase user
+ */
 function updateUserObject(uid, profileName, url) {
   db.collection('users').doc(uid).update({
     displayName: profileName,
@@ -269,25 +254,24 @@ function updateUserObject(uid, profileName, url) {
   });
 }
 
+/*
+ *  When the user logs in, verifies the information is correct
+ */
 function login() {
     let loginemail = document.getElementById('loginuseremail').value;
     let loginpassword = document.getElementById('loginpassword').value;
     let rmCheck = document.getElementById('loginrememberme');
-    console.log(loginemail);
-    console.log(loginpassword);
 
+    // If user checked "remember me" then refer to localStorage for information
     if (rmCheck.checked && loginemail !== "" && loginpassword !== "") {
-      console.log("setting local storage...");
       localStorage.username = loginemail;
       localStorage.password = loginpassword;
       localStorage.checkbox = rmCheck.value;
     } else {
-      console.log("local storage not stored");
       localStorage.username = "";
       localStorage.password = "";
       localStorage.checkbox = "";
     }
-    // [START auth_signin_password]
     firebase.auth().signInWithEmailAndPassword(loginemail, loginpassword)
       .then((userCredential) => {
         // Signed in
@@ -298,9 +282,11 @@ function login() {
       .catch((error) => {
         alert("Wrong username or password.");
       });
-    // [END auth_signin_password]
 }
 
+/*
+ *  Signs user out
+ */
 function signOut(){
   firebase.auth().signOut().then(() => {
     // Sign-out successful.
@@ -311,6 +297,9 @@ function signOut(){
   });
 }
 
+/*
+ *  When the user changes their photo in profileEdit.html, update the image
+ */
 function displayPhoto() {
   const preview = document.querySelector('img');
   const file = document.querySelector('input[type=file]').files[0];
@@ -334,7 +323,9 @@ function searchDropdown() {
   document.getElementById("myInput").oninput = searchForEveryone;
 }
 
-
+/*
+ *  When the search bar is pressed, activate searchForFriends() on input change
+ */
 function textBoxDropdown() {
   searchForFriends();
   document.getElementById("textBoxInput").oninput = searchForFriends;
@@ -346,39 +337,36 @@ function textBoxDropdown() {
 function searchForFriends() {
   if(searchFriendsSemaphore == 0) {
     searchFriendsSemaphore = 1;
-    console.log("SEARCH FOR FRIENDS");
     var input = document.getElementById("textBoxInput").value.toUpperCase();
     var div = document.getElementById("friendList");
-    while (div.firstChild) {//clears dropdown list
+    while (div.firstChild) { // Clears dropdown list
       div.removeChild(div.firstChild);
     }
     var user = firebase.auth().currentUser;
     // Search through all users with overlap
     db.collection('users').doc(user.uid).get().then((doc) => {
       if(doc.exists){
-        console.log("Document data:", doc.data());
         var currUser = doc.data();
         var friendList = currUser.friends;
         if(friendList.length > 0) {
 
+          // Loops through all the users friends
           for(var i=0; i<friendList.length; i=i+1) {
             db.collection('users').doc(friendList[i]).get().then((doc) => {
               var userObject = doc.data();
+
+              // If the friend starts with the same input, then display
               if(userObject.displayName.toUpperCase().startsWith(input) && !eventFriendsUidList.includes(userObject.uid)) {
-                console.log("Listing: "+userObject.displayName);
                 var friend = document.createElement("LI");
                 friend.setAttribute("class", "list-group-item");
                 friend.innerHTML = "<a><img class='listItemPhoto' src='"+userObject.photoURL+"'>"+userObject.displayName+"</a>";
                 friend.onclick = function() {
                   if(userObject.calendarID != "") {
-                    console.log("pushing to global calendarID: "+userObject.calendarID);
                     eventFriendsEmailsList.push(userObject.calendarID);
                     executeBusyList();
                   } else {
-                    console.log("pushing to global calendarID: \"\"");
                     eventFriendsEmailsList.push("");
                   }
-                  console.log("pushing to global uid: "+userObject.uid);
                   eventFriendsUidList.push(userObject.uid);
                   div.removeChild(friend);
                   createEventFriendsList();
@@ -388,12 +376,16 @@ function searchForFriends() {
             });
           }
         }
-      } else { console.log("uh-oh"); }
+      } else { console.log("Trouble reading user information"); }
     });
     searchFriendsSemaphore = 0;
   }
 }
 
+/*
+ *  This function is purely for displaying the names of potential invitees.
+ *  When the X is pressed, the name is removed from all lists
+ */
 function createEventFriendsList() {
   var friendsInEvents = document.getElementById("friendsInEvents");
   while (friendsInEvents.firstChild) {//clears list
@@ -414,7 +406,6 @@ function createEventFriendsList() {
       closeButton.innerHTML = "X";
 
       closeButton.onclick = function() {
-        console.log("Remove friend from event: "+friendObject.displayName);
         // Remove from global arrays by finding index
         var i = eventFriendsUidList.indexOf(friendObject.uid);
         if(i > -1) {
@@ -437,7 +428,6 @@ function createEventFriendsList() {
 function searchForEveryone() {
   if(searchUsersSemaphore == 0) {
     searchUsersSemaphore = 1;
-    console.log("SEARCH FOR EVERYONE");
     var input = document.getElementById("myInput").value.toUpperCase();
     var div = document.getElementById("peopleList");
     while (div.firstChild) {//clears dropdown list
@@ -448,11 +438,8 @@ function searchForEveryone() {
     db.collection('users').get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-            console.log(counter);
             var userObject = doc.data();
             var name = userObject.displayName.toUpperCase();
-            console.log("Looking at user: " + name);
-            console.log("input:" +input);
             if(counter<4 && name.startsWith(input) && input!=="" && userObject.uid !== firebase.auth().currentUser.uid) {
               // append as a child
               var people = document.createElement("LI");
@@ -470,6 +457,9 @@ function searchForEveryone() {
   }
 }
 
+/*
+ *  Adds the selected user's uid to a list of the current user's friends
+ */
 function addFriend() {
   var addBtn = document.getElementById("addFriendButton");
   var rmvBtn = document.getElementById("removeFriendButton");
@@ -477,12 +467,14 @@ function addFriend() {
   rmvBtn.style.display = "block";
   var user = firebase.auth().currentUser;
   var uid = location.search.substring(1);
-  console.log("Added Friend UID: "+uid);
   db.collection('users').doc(user.uid).update({
     friends: firebase.firestore.FieldValue.arrayUnion(uid)
   });
 }
 
+/*
+ *  Removes friend from the list of user's friends
+ */
 function removeFriend() {
   var addBtn = document.getElementById("addFriendButton");
   var rmvBtn = document.getElementById("removeFriendButton");
@@ -490,25 +482,22 @@ function removeFriend() {
   rmvBtn.style.display = "none";
   var user = firebase.auth().currentUser;
   var uid = location.search.substring(1);
-  console.log("Removed Friend UID: "+uid);
   db.collection('users').doc(user.uid).update({
     friends: firebase.firestore.FieldValue.arrayRemove(uid)
   });
 }
 
+/* 
+ *  When 'Create' is pressed in the Create Event Modal
+ *  all information on the page is grabbed and made into an event object.
+ *  Then that event is inserted into the user's Google calendar
+ */
 function createSchedulerEvent() {
-  console.log("Creating event...");
   var eventName     = document.getElementById("eventName").value;
   var startdateTime = document.getElementById("startdateTime").value;
   var enddateTime   = document.getElementById("enddateTime").value;
   var eventDescription = document.getElementById("eventDescription").value;
   var eventLocation = document.getElementsByClassName("mapboxgl-ctrl-geocoder--input")[0].value;
-
-  console.log("Event friends emails list: "+eventFriendsEmailsList);
-  console.log("startdatetime: "+startdateTime+':00-07:00');
-  console.log("enddatetime: "+enddateTime+":00-07:00");
-  console.log("Event description: "+eventDescription);
-  console.log("Event location: "+eventLocation);
 
   var event = {
     'summary': eventName,
@@ -532,6 +521,7 @@ function createSchedulerEvent() {
     }
   };
 
+  // Inserts attendees into the Google calendar event to b invited
   for(var i=1; i<eventFriendsEmailsList.length; i++){
     if(eventFriendsEmailsList[i]!="") {
       event.attendees.push({email: eventFriendsEmailsList[i]});
@@ -544,17 +534,14 @@ function createSchedulerEvent() {
   });
   
   request.execute(function(event) {
-    console.log("In execute");
     appendPre('Event created: ' + event.htmlLink);
     window.location.reload();
     alert("Event Created");
-    //eventFriendsEmailsList = [firebase.auth().currentUser.calendarID]; 
-    //eventFriendsUidList = [firebase.auth().currentUser.uid];
   });
 }
 
 /* 
- * Loads the Overlap Calendar and finds overlapping freetime
+ * Loads the Overlap Calendar and finds overlapping freetime in the Create Event Modal
  */
 function renderOverlapCalendar(response) {
   var overlapCalendar = document.getElementById("overlapCalendar");
@@ -569,13 +556,10 @@ function renderOverlapCalendar(response) {
     },
     initialView: 'timeGridWeek',
     select: function(info) {
-      console.log("Selected: "+info);
       var startTime = document.getElementById("startdateTime");
       var endTime = document.getElementById("enddateTime");
       var dateFormatStart = new Date(info.start+"GMT").toISOString();
       var dateFormatEnd = new Date(info.end+"GMT").toISOString();
-      console.log("ISO String start: "+dateFormatStart.replace(":00.000Z", ""));
-      console.log("ISO String end: "+dateFormatEnd.replace(":00.000Z", ""));
       startTime.value = dateFormatStart.replace(":00.000Z", "");
       endTime.value = dateFormatEnd.replace(":00.000Z", "");
     }
@@ -583,13 +567,10 @@ function renderOverlapCalendar(response) {
 
   var busyList = [];
   var allBusyLists = response.result.calendars;
-
-  console.log("Global email list: "+eventFriendsEmailsList);
   
   for(var cid = 0; cid < eventFriendsEmailsList.length; cid++) {
     if(eventFriendsEmailsList[cid] != "") {
       var calendarID = eventFriendsEmailsList[cid];
-      console.log("Highlight events of: "+calendarID);
       for(var i = 0; i < allBusyLists[calendarID].busy.length; i++) {
         busyList.push({
           start: allBusyLists[calendarID].busy[i].start, 
@@ -605,6 +586,12 @@ function renderOverlapCalendar(response) {
   setTimeout(function(){calendar.render();},500);
 }
 
+/*
+ *  Takes in all potential attendees and highlights when they are busy over the 
+ *  next month.
+ * 
+ *  This allows the user to find times where everyone is free and plan accordingly
+ */
 function executeBusyList() {
 
   var calendarIDWithNoEmpty = [];
@@ -613,7 +600,6 @@ function executeBusyList() {
       calendarIDWithNoEmpty.push({id: eventFriendsEmailsList[i]});
     }
   }
-  console.log("CalendarIDWithNoEmpty: "+calendarIDWithNoEmpty);
 
   var timeMin = new Date().toISOString();
   var timeMax = new Date();
@@ -628,7 +614,6 @@ function executeBusyList() {
     }
   }).then(function(response) {
     // Handle the results here (response.result has the parsed body).
-    console.log("Response", response);
     renderOverlapCalendar(response);
   },
   function(err) { console.error("Execute error", err); 

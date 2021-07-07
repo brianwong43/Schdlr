@@ -153,7 +153,6 @@
                                   .then(response => response.json())
                                   .then(data => { 
                                     var currLocation = data.features[0].place_name
-                                    console.log(currLocation);
                                     document.getElementsByClassName("mapboxgl-ctrl-geocoder--input")[0].value = currLocation;
                                   });
                               });
@@ -290,19 +289,21 @@
         var createEventSection = document.getElementById('createEventSection');
 
         var firebaseUser;
-        /**
+        /*
          *  On load, called to load the auth2 library and API client library.
          */
         function handleClientLoad() {
           gapi.load('client:auth2', initClient);
         }
 
+        /*
+         *  Passes the firebase user object into home to stop any asynchronus issues
+         */
         function passFirebaseUser(firebase) {
-          console.log("In passFirebaseUser()");
           firebaseUser = firebase;
         }
 
-        /**
+        /*
          *  Initializes the API client library and sets up sign-in state
          *  listeners.
          */
@@ -331,28 +332,31 @@
           console.log("Failed to storeCalendarID");
         }
 
+        /*
+         *  Stores the users calendar ID upon sign in using the user object
+         */
         function storeCalendarID() {
           var user = gapi.auth2.getAuthInstance().currentUser.get();
           var profile = user.getBasicProfile();
           var calendarID = profile.getEmail();
 
           // Now add this to user object
-          console.log("In storeCalendarID()");
           db.collection('users').doc(firebaseUser.uid).update({
             calendarID: calendarID
           });
           return calendarID;
         }
 
+        /*
+         *  Changes the calendar ID from the firebase user object to an empty string
+         */
         function removeCalendarID() {
-          // Set calendarID to empty string
-          console.log("removing calendar ID");
           db.collection('users').doc(firebaseUser.uid).update({
             calendarID: ""
           });
         }
 
-        /**
+        /*
          *  Called when the signed in status changes, to update the UI
          *  appropriately. After a sign-in, the API is called.
          */
@@ -363,13 +367,11 @@
             auth2.then(calendarID = storeCalendarID(), onFailure).then(function() { 
               eventFriendsEmailsList.push(calendarID);
               eventFriendsUidList.push(firebaseUser.uid);
-              console.log("Calendar ID: " + calendarID);
               authorizeButton.style.display = 'none';
               signoutButton.style.display = 'block';
               createEventSection.style.display = 'block';
 
-              //Create a calendar with users events
-              console.log("User calendar");
+              // Create a calendar with users events
               calendar = new FullCalendar.Calendar(calendarEl, {
                 aspectRatio: 1.9,
                 headerToolbar: { 
@@ -382,9 +384,9 @@
                 events: {
                   googleCalendarId: calendarID
                 },
+                // If the event is clicked on the calendar, opens up the display event modal
                 eventClick: function(info) {
                   info.jsEvent.preventDefault(); // Don't let the browser navigate
-                  console.log(info);             // Event info
 
                   // Set title
                   document.getElementById("eventNameView").innerHTML = '<h4>'+info.event.title+'<h4>';
@@ -410,7 +412,6 @@
                     fetch('https://api.mapbox.com/geocoding/v5/mapbox.places/'+formattedName+'.json?access_token=pk.eyJ1IjoianRzdWNoIiwiYSI6ImNrcDRiZ21vcDAxNXIyd3FlczdvMnJhbjgifQ.IzYSQIgoUKSskQtocQZNHg')
                       .then(response => response.json())
                       .then(data => { 
-                        console.log(data);
                         long = data.features[0].center[0];
                         lat = data.features[0].center[1];
                       }).then(function(){
@@ -437,13 +438,12 @@
               calendar.render();
             });
           } else {
-              // include text here
+              // If the user is not signed in to Google calendar
               authorizeButton.style.display = 'block';
               signoutButton.style.display = 'none';
               createEventSection.style.display = 'none';
 
               // Default calendar
-              console.log("Default calendar");
               calendar = new FullCalendar.Calendar(calendarEl, {
                 aspectRatio: 1.9,
                 headerToolbar: { 
@@ -458,21 +458,21 @@
           }
         }
 
-        /**
+        /*
          *  Sign in the user upon button click.
          */
         function handleAuthClick(event) {
           gapi.auth2.getAuthInstance().signIn();
         }
 
-        /**
+        /*
          *  Sign out the user upon button click.
          */
         function handleSignoutClick(event) {
           gapi.auth2.getAuthInstance().signOut();
         }
 
-        /**
+        /*
          * Append a pre element to the body containing the given message
          * as its text node. Used to display the results of the API call.
          *
@@ -495,7 +495,12 @@
     </div>
 
     <footer>
-      <p>©Copyright 2050 by nobody. All rights reversed.</p>
+      <p>Contact Us:</p>
+      <row>
+          <p class="col-sm-4">jtsuch1122@gmail.com </p>
+          <p class="col-sm-4">tluk2724@gmail.com </p> 
+          <p class="col-sm-4">brianwong43@gmail.com</p>
+      </row>
     </footer>
   </body>
 </html> 
